@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import ThemeToggle from '@/components/ThemeToggle';
 import { ArrowLeft, Waves, Mail, Lock, Github } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -42,8 +41,6 @@ const Auth: React.FC = () => {
 
  return (
   <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
-    <ThemeToggle />
-    
     <div className="absolute inset-0 bg-glow-gradient opacity-20" />
     <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-ocean-primary/10 rounded-full blur-3xl" />
     <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-ocean-secondary/10 rounded-full blur-3xl" />
@@ -108,7 +105,7 @@ const Auth: React.FC = () => {
 
           <Button 
             type="submit" 
-            variant="ocean" 
+            variant="coral" 
             className="w-full"
             disabled={isLoading}
           >

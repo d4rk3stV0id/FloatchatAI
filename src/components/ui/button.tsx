@@ -15,9 +15,10 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        ocean: "bg-ocean-gradient text-primary-foreground hover:shadow-glow hover:-translate-y-0.5 transition-all duration-300 border border-ocean-primary/30 hover:border-ocean-primary",
-        hero: "bg-ocean-gradient text-primary-foreground hover:shadow-glow hover:-translate-y-1 transition-all duration-300 border border-ocean-primary/50 hover:border-ocean-primary text-lg font-semibold",
-        float: "bg-card/80 backdrop-blur-sm text-card-foreground hover:bg-card hover:shadow-card-custom transition-all duration-300 border border-border/50",
+        ocean: "bg-gradient-to-r from-[#003366] to-[#4682B4] text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border border-[#4682B4]/30 hover:border-[#4682B4]",
+        hero: "bg-gradient-to-r from-[#003366] to-[#4682B4] text-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-[#4682B4]/50 hover:border-[#4682B4] text-lg font-semibold",
+        float: "bg-[#1F4A70]/80 backdrop-blur-sm text-[#F0F0E6] hover:bg-[#1F4A70] hover:shadow-lg transition-all duration-300 border border-[#4682B4]/50",
+        coral: "bg-[#20B2AA] text-white hover:bg-[#20B2AA]/90 hover:shadow-lg transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",
