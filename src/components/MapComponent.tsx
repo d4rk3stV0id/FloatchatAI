@@ -1,48 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, Marker, Popup, GeoJSON, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
-
-// Define the type for a single float
-interface Float {
-  id: number;
-  wmo_id: number;
-  latitude: number;
-  longitude: number;
-  last_seen: string;
-}
+import { AIAction, Float } from '@/pages/Dashboard'; // Import types
 
 interface MapComponentProps {
   floats: Float[];
+  actions: AIAction[];
+  mapRef: React.RefObject<any>;
 }
 
-// --- FIX: Create a helper component to access the map instance via the useMap hook ---
+// Helper component to configure the map instance after creation
 const MapSetup = () => {
   const map = useMap();
   useEffect(() => {
-    // This code runs once when the map is created
+    // This creates a dedicated "pane" or layer for the labels
     map.createPane('labels');
     const pane = map.getPane('labels');
     if (pane) {
+      // Ensure labels appear on top of other layers
       pane.style.zIndex = "650";
+      // Make sure the label layer doesn't intercept mouse clicks
       pane.style.pointerEvents = 'none';
     }
   }, [map]);
-  return null; // This component does not render anything
+  return null; // This component does not render anything itself
 };
 
-
-const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ floats, actions, mapRef }) => {
   const mapCenter: L.LatLngExpression = [10.8231, 80.2707];
   const [landData, setLandData] = useState<any>(null);
+  const [highlightedFloatId, setHighlightedFloatId] = useState<number | null>(null);
 
-  // Fetch the land data once when the component mounts
   useEffect(() => {
     fetch('/land.geojson')
       .then(res => res.json())
-      .then(data => setLandData(data))
-      .catch(err => console.error("Failed to fetch land data:", err));
+      .then(data => setLandData(data));
   }, []);
+  
+  // Handle incoming actions from the AI to highlight a float
+  useEffect(() => {
+      const highlightAction = actions.find(a => a.type === 'HIGHLIGHT_FLOAT');
+      if (highlightAction) {
+          const wmo_id = highlightAction.payload.wmo_id;
+          const floatToHighlight = floats.find(f => f.wmo_id === wmo_id);
+          if(floatToHighlight) {
+            setHighlightedFloatId(floatToHighlight.id);
+            // Remove the highlight after 5 seconds
+            setTimeout(() => setHighlightedFloatId(null), 5000);
+          }
+      }
+  }, [actions, floats]);
 
+
+  const landStyle = {
+    fillColor: '#111827',
+    weight: 0.5,
+    color: '#374151',
+    fillOpacity: 1,
+  };
+  
   const pulsingIcon = L.divIcon({
     className: 'pulsing-icon-container',
     html: `
@@ -51,21 +67,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
         <div class="sonar-wave"></div>
       </div>
     `,
-    iconSize: [15, 15],
-    iconAnchor: [7.5, 7.5],
+    iconSize: [15, 15], 
+    iconAnchor: [7.5, 7.5], 
     popupAnchor: [0, -9]
   });
 
-  // Style for the GeoJSON land layer
-  const landStyle = {
-    fillColor: '#111827', // Dark color for land
-    weight: 0.5,
-    color: '#374151', // Border color for countries
-    fillOpacity: 1,
-  };
-
   return (
-    <div style={{ position: 'relative', height: '100%', width: '100%', borderRadius: '0.5rem', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <style>{`
         /* --- High-performance, wavefront animation with fading trail --- */
         .ocean-background {
@@ -110,12 +118,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
           90% { opacity: 1; }
           100% { transform: translate(-100vw, -100vw); opacity: 0; }
         }
-        /* --- End of animation styles --- */
-
         .leaflet-container {
           background-color: transparent !important;
         }
-        
         .pulsing-icon-container { 
           --float-color: #00ffff;
           --float-glow: #00ffff;
@@ -146,7 +151,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
           50% { opacity: 0.5; }
           100% { transform: scale(2); opacity: 0; }
         }
-        
         .leaflet-popup-content-wrapper {
           background-color: #1a2c;
           color: #e2e8f0;
@@ -156,6 +160,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
         }
         .leaflet-popup-tip { background-color: #1a2c; }
         .leaflet-popup-close-button { color: #e2e8f0 !important; }
+
+        /* Highlight animation for the float */
+        .highlighted-float .sonar-emitter {
+            animation: highlight-pulse 2s infinite;
+        }
+        @keyframes highlight-pulse {
+            0% { box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff; }
+            50% { box-shadow: 0 0 20px #ffffff, 0 0 30px #ffffff; }
+            100% { box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff; }
+        }
       `}</style>
 
       <div className="ocean-background">
@@ -169,28 +183,32 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
         zoom={4} 
         scrollWheelZoom={true} 
         style={{ height: '100%', width: '100%', position: 'relative', zIndex: 2 }}
-        // --- FIX: The whenCreated prop has been removed to prevent the crash ---
+        ref={mapRef}
       >
-        {/* --- FIX: The new MapSetup component is added here to configure the map --- */}
         <MapSetup />
 
         {landData && <GeoJSON data={landData} style={landStyle} />}
         
+        {/* This new layer adds the city and country names */}
         <TileLayer
             url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
             pane="labels"
         />
         
-        {floats.map((float) => (
-          <Marker key={float.id} position={[float.latitude, float.longitude]} icon={pulsingIcon}>
-            <Popup>
-              <b>WMO ID:</b> {float.wmo_id} <br />
-              <b>Position:</b> {float.latitude.toFixed(2)}, {float.longitude.toFixed(2)} <br />
-              <b>Last Seen:</b> {new Date(float.last_seen).toLocaleString()}
-            </Popup>
-          </Marker>
-        ))}
+        {floats.map((float) => {
+            const isHighlighted = float.id === highlightedFloatId;
+            const icon = L.divIcon({
+                className: `pulsing-icon-container ${isHighlighted ? 'highlighted-float' : ''}`,
+                html: `<div class="pulsing-icon"><div class="sonar-emitter"></div><div class="sonar-wave"></div></div>`,
+                iconSize: [15, 15], iconAnchor: [7.5, 7.5], popupAnchor: [0, -9]
+            });
+            return (
+              <Marker key={float.id} position={[float.latitude, float.longitude]} icon={icon}>
+                <Popup><b>WMO ID:</b> {float.wmo_id}</Popup>
+              </Marker>
+            );
+        })}
       </MapContainer>
     </div>
   );
