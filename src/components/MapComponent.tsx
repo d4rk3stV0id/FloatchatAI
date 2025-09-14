@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, Marker, Popup, GeoJSON } from 'react-leaflet';
+import { MapContainer, Marker, Popup, GeoJSON, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
 // Define the type for a single float
@@ -14,6 +14,22 @@ interface Float {
 interface MapComponentProps {
   floats: Float[];
 }
+
+// --- FIX: Create a helper component to access the map instance via the useMap hook ---
+const MapSetup = () => {
+  const map = useMap();
+  useEffect(() => {
+    // This code runs once when the map is created
+    map.createPane('labels');
+    const pane = map.getPane('labels');
+    if (pane) {
+      pane.style.zIndex = "650";
+      pane.style.pointerEvents = 'none';
+    }
+  }, [map]);
+  return null; // This component does not render anything
+};
+
 
 const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
   const mapCenter: L.LatLngExpression = [10.8231, 80.2707];
@@ -35,9 +51,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
         <div class="sonar-wave"></div>
       </div>
     `,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -12]
+    iconSize: [15, 15],
+    iconAnchor: [7.5, 7.5],
+    popupAnchor: [0, -9]
   });
 
   // Style for the GeoJSON land layer
@@ -60,6 +76,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
           z-index: 1;
         }
         .wave {
+          --wave-color: rgba(10, 88, 144, 0.6);
           position: absolute;
           width: 300vw;
           height: 300vw;
@@ -67,7 +84,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
           opacity: 0; /* Start transparent before animation begins */
           background: radial-gradient(
             circle at 100% 100%, 
-            rgba(10, 88, 144, 0.6) 15%,
+            var(--wave-color) 15%,
             rgba(10, 88, 144, 0) 60%
           );
           bottom: -150vw;
@@ -76,65 +93,50 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
           animation-iteration-count: infinite;
           animation-timing-function: linear;
         }
-        .wave.one {
-          animation-duration: 20s;
-          animation-delay: 0s;
-        }
+        .wave.one { animation-duration: 20s; animation-delay: 0s; }
         .wave.two {
-          width: 320vw;
-          height: 320vw;
-          border-radius: 47%;
-          bottom: -160vw;
-          right: -160vw;
-          animation-duration: 25s;
-          animation-delay: -8s;
+          width: 320vw; height: 320vw; border-radius: 47%;
+          bottom: -160vw; right: -160vw;
+          animation-duration: 25s; animation-delay: -8s;
         }
         .wave.three {
-          width: 280vw;
-          height: 280vw;
-          border-radius: 43%;
-          bottom: -140vw;
-          right: -140vw;
-          animation-duration: 30s;
-          animation-delay: -15s;
+          width: 280vw; height: 280vw; border-radius: 43%;
+          bottom: -140vw; right: -140vw;
+          animation-duration: 30s; animation-delay: -15s;
         }
-        /* --- FIX: Added opacity keyframes for smooth fade-in and fade-out --- */
         @keyframes sweep-across {
-          0% {
-            transform: translate(0, 0);
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            transform: translate(-100vw, -100vw);
-            opacity: 0;
-          }
+          0% { transform: translate(0, 0); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(-100vw, -100vw); opacity: 0; }
         }
         /* --- End of animation styles --- */
 
         .leaflet-container {
           background-color: transparent !important;
         }
-        .pulsing-icon-container { border: none; background: none; }
+        
+        .pulsing-icon-container { 
+          --float-color: #00ffff;
+          --float-glow: #00ffff;
+          border: none; 
+          background: none; 
+        }
         .pulsing-icon .sonar-emitter {
           position: relative;
-          width: 24px;
-          height: 24px;
+          width: 15px;
+          height: 15px;
           border-radius: 50%;
-          background-color: #00ffff;
-          border: 2px solid #ffffff;
-          box-shadow: 0 0 12px #00ffff, inset 0 0 6px rgba(255,255,255,0.6);
+          background-color: var(--float-color);
+          border: 1px solid #ffffff;
+          box-shadow: 0 0 8px var(--float-glow), inset 0 0 4px rgba(255,255,255,0.6);
         }
         .pulsing-icon .sonar-wave {
           position: absolute; top: -2px; left: -2px;
-          width: 28px; height: 28px;
+          width: 19px;
+          height: 19px;
           border-radius: 50%;
-          border: 4px solid #00ffff;
+          border: 2px solid var(--float-color);
           opacity: 0;
           animation: sonar-wave 2.5s infinite;
           transform-origin: center;
@@ -144,6 +146,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
           50% { opacity: 0.5; }
           100% { transform: scale(2); opacity: 0; }
         }
+        
         .leaflet-popup-content-wrapper {
           background-color: #1a2c;
           color: #e2e8f0;
@@ -166,8 +169,18 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats }) => {
         zoom={4} 
         scrollWheelZoom={true} 
         style={{ height: '100%', width: '100%', position: 'relative', zIndex: 2 }}
+        // --- FIX: The whenCreated prop has been removed to prevent the crash ---
       >
+        {/* --- FIX: The new MapSetup component is added here to configure the map --- */}
+        <MapSetup />
+
         {landData && <GeoJSON data={landData} style={landStyle} />}
+        
+        <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+            pane="labels"
+        />
         
         {floats.map((float) => (
           <Marker key={float.id} position={[float.latitude, float.longitude]} icon={pulsingIcon}>
