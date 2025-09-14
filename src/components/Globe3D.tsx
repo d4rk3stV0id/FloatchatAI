@@ -130,7 +130,7 @@ const Globe3D: React.FC<Globe3DProps> = ({ className }) => {
       particlesGeometry.dispose();
       particlesMaterial.dispose();
     };
-  }, [mouseX]);
+  }, []);
 
   // Mouse movement handler
   useEffect(() => {

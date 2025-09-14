@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'; 
 import ThemeToggle from '@/components/ThemeToggle';
+import { useNavigate } from 'react-router-dom';
 import { 
   Waves, 
   Send, 
@@ -14,7 +16,9 @@ import {
   Menu,
   X,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  User,
+  LogOut
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -25,6 +29,7 @@ interface ChatMessage {
 }
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -49,6 +54,14 @@ const Dashboard: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setChatInput('');
 
+    // Auto-scroll to bottom after adding message
+    setTimeout(() => {
+      const chatContainer = document.getElementById('chat-messages');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, 100);
+
     // Simulate AI response
     setTimeout(() => {
       const aiMessage: ChatMessage = {
@@ -58,6 +71,14 @@ const Dashboard: React.FC = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Auto-scroll after AI response
+      setTimeout(() => {
+        const chatContainer = document.getElementById('chat-messages');
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 100);
     }, 1000);
   };
 
@@ -96,21 +117,21 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             
-            <div className="px-3 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer">
+            <div className="px-3 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer" onClick={() => navigate('/analytics')}>
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="text-sm">Data Analytics</span>
               </div>
             </div>
             
-            <div className="px-3 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer">
+            <div className="px-3 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer" onClick={() => navigate('/trends')}>
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
                 <span className="text-sm">Trends</span>
               </div>
             </div>
             
-            <div className="px-3 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer">
+            <div className="px-3 py-2 rounded-lg hover:bg-muted transition-colors cursor-pointer" onClick={() => navigate('/settings')}>
               <div className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 <span className="text-sm">Settings</span>
@@ -151,11 +172,27 @@ const Dashboard: React.FC = () => {
               <Menu className="h-4 w-4" />
             </Button>
             <h1 className="text-xl font-semibold">Indian Ocean Dashboard</h1>
-            <div className="ml-auto flex items-center gap-2">
-              <div className="text-sm text-muted-foreground">
-                Last updated: Just now
+            <div className="ml-auto flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="text-sm text-muted-foreground">
+                  Last updated: Just now
+                </div>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               </div>
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate('/')}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>
@@ -198,7 +235,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Chat Messages */}
-            <ScrollArea className="flex-1 p-4">
+            <ScrollArea className="flex-1 p-4" id="chat-messages">
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div

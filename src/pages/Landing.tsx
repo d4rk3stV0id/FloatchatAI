@@ -83,7 +83,7 @@ const Landing: React.FC = () => {
           variant="ocean"
           size="lg"
           onClick={() => navigate('/auth')}
-          className="fixed bottom-8 right-8 z-50 animate-float-gentle shadow-2xl"
+          className="fixed bottom-8 right-8 z-50 shadow-2xl"
         >
           <Waves className="mr-2 h-5 w-5" />
           Launch App
@@ -229,7 +229,7 @@ const Landing: React.FC = () => {
               variant="hero" 
               size="xl"
               onClick={() => navigate('/auth')}
-              className="group animate-ocean-pulse"
+              className="group"
             >
               Start Your Ocean Journey
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
