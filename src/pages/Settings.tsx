@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Settings as SettingsIcon, User, Bell, Shield, Database } from 'lucide-react';
+import { User, Bell, Shield, Database, Palette } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -17,8 +17,6 @@ const Settings: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <ThemeToggle />
-      
       <div className="container mx-auto max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -31,6 +29,26 @@ const Settings: React.FC = () => {
         </div>
 
         <div className="space-y-6">
+          {/* Appearance Settings */}
+          <Card className="card-shadow border-ocean-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="h-5 w-5 text-ocean-primary" />
+                Appearance
+              </CardTitle>
+              <CardDescription>Customize the look and feel of the application.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="theme">Interface Theme</Label>
+                  <p className="text-sm text-muted-foreground">Select your preferred light or dark mode.</p>
+                </div>
+                <ThemeToggle />
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Profile Settings */}
           <Card className="card-shadow border-ocean-primary/20">
             <CardHeader>
@@ -52,7 +70,7 @@ const Settings: React.FC = () => {
               </div>
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue="researcher@floatchat.com" />
+                <Input id="email" type="email" defaultValue="researcher@floatchat.com" disabled />
               </div>
               <div>
                 <Label htmlFor="organization">Organization</Label>
@@ -73,7 +91,7 @@ const Settings: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="notifications">Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Receive updates about new data and alerts</p>
+                  <p className="text-sm text-muted-foreground">Receive updates about new data and alerts.</p>
                 </div>
                 <Switch
                   id="notifications"
@@ -85,7 +103,7 @@ const Settings: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="autoRefresh">Auto Refresh Data</Label>
-                  <p className="text-sm text-muted-foreground">Automatically refresh ocean data every 15 minutes</p>
+                  <p className="text-sm text-muted-foreground">Automatically refresh map data every 15 minutes.</p>
                 </div>
                 <Switch
                   id="autoRefresh"
@@ -108,7 +126,7 @@ const Settings: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="dataSync">Offline Data Sync</Label>
-                  <p className="text-sm text-muted-foreground">Download data for offline analysis</p>
+                  <p className="text-sm text-muted-foreground">Download key data for offline analysis.</p>
                 </div>
                 <Switch
                   id="dataSync"
@@ -120,10 +138,6 @@ const Settings: React.FC = () => {
               <div>
                 <Label htmlFor="region">Default Region</Label>
                 <Input id="region" defaultValue="Indian Ocean" />
-              </div>
-              <div>
-                <Label htmlFor="dateRange">Default Date Range (days)</Label>
-                <Input id="dateRange" type="number" defaultValue="30" />
               </div>
             </CardContent>
           </Card>
@@ -137,20 +151,20 @@ const Settings: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full sm:w-auto">
                 Change Password
               </Button>
-              <Button variant="outline" className="w-full">
-                Enable Two-Factor Authentication
-              </Button>
               <Separator />
-              <div className="text-center">
-                <Button variant="destructive" size="sm">
-                  Delete Account
+              <div className="flex flex-col sm:flex-row items-center justify-between rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+                <div>
+                  <h4 className="font-semibold text-destructive">Delete Account</h4>
+                  <p className="text-xs text-destructive/80 mt-1">
+                    This action is permanent and cannot be undone.
+                  </p>
+                </div>
+                <Button variant="destructive" size="sm" className="mt-4 sm:mt-0">
+                  Delete My Account
                 </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  This action cannot be undone
-                </p>
               </div>
             </CardContent>
           </Card>
@@ -167,3 +181,4 @@ const Settings: React.FC = () => {
 };
 
 export default Settings;
+

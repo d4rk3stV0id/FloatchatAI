@@ -3,30 +3,39 @@ import { Switch } from '@/components/ui/switch';
 import { Sun, Moon } from 'lucide-react';
 
 const ThemeToggle: React.FC = () => {
-  const [isDark, setIsDark] = useState(true); // Default to dark theme
+  const [isDark, setIsDark] = useState(() => {
+    // Check for saved theme in local storage or default to dark
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme ? savedTheme === 'dark' : true;
+  });
 
-  useEffect(() => {
-    // Set initial theme to dark
-    document.documentElement.classList.add('dark');
-  }, []);
+  useEffect(() => {
+    // Apply the theme on initial load and when it changes
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+  };
 
-  return (
-    <div className="fixed top-6 right-6 z-50 flex items-center gap-3 bg-card/90 backdrop-blur-sm rounded-full px-4 py-2 border border-border/50">
-      <Sun className="h-4 w-4 text-muted-foreground" />
-      <Switch
-        checked={isDark}
-        onCheckedChange={toggleTheme}
-        aria-label="Toggle theme"
-        className="data-[state=checked]:bg-ocean-primary"
-      />
-      <Moon className="h-4 w-4 text-muted-foreground" />
-    </div>
-  );
+  return (
+    <div className="flex items-center gap-3">
+      <Sun className="h-5 w-5 text-muted-foreground" />
+      <Switch
+        checked={isDark}
+        onCheckedChange={toggleTheme}
+        aria-label="Toggle theme"
+        className="data-[state=checked]:bg-ocean-primary"
+      />
+      <Moon className="h-5 w-5 text-muted-foreground" />
+    </div>
+  );
 };
 
 export default ThemeToggle;
