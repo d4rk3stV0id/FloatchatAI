@@ -1,7 +1,11 @@
+// components/MapComponent.tsx
+
 import React, { useState, useEffect } from 'react';
 import { MapContainer, Marker, Popup, GeoJSON, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { AIAction, Float } from '@/pages/Dashboard'; // Import types
+import 'leaflet/dist/leaflet.css';
+import { AIAction } from '@/pages/dashboard';
+import { Float } from '@/lib/dataHooks'; // Make sure this is the updated Float type
 
 interface MapComponentProps {
   floats: Float[];
@@ -59,18 +63,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats, actions, mapRef }) 
     fillOpacity: 1,
   };
   
-  const pulsingIcon = L.divIcon({
-    className: 'pulsing-icon-container',
-    html: `
-      <div class="pulsing-icon">
-        <div class="sonar-emitter"></div>
-        <div class="sonar-wave"></div>
-      </div>
-    `,
-    iconSize: [15, 15], 
-    iconAnchor: [7.5, 7.5], 
-    popupAnchor: [0, -9]
-  });
+  // Helper function to format the timestamp for readability
+  const formatTimestamp = (ts: string | null) => {
+    if (!ts) return 'N/A';
+    return new Date(ts).toLocaleString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+    });
+  };
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
@@ -152,13 +155,14 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats, actions, mapRef }) 
           100% { transform: scale(2); opacity: 0; }
         }
         .leaflet-popup-content-wrapper {
-          background-color: #1a2c;
+          background-color: #1a2c38e6; /* Added some opacity */
           color: #e2e8f0;
           border: 1px solid #00ffff80;
           border-radius: 8px;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(5px);
         }
-        .leaflet-popup-tip { background-color: #1a2c; }
+        .leaflet-popup-tip { background-color: #1a2c38; }
         .leaflet-popup-close-button { color: #e2e8f0 !important; }
 
         /* Highlight animation for the float */
@@ -170,6 +174,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats, actions, mapRef }) 
             50% { box-shadow: 0 0 20px #ffffff, 0 0 30px #ffffff; }
             100% { box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff; }
         }
+
+        /* --- NEW STYLES for Popup Content --- */
+        .map-popup h3 {
+          font-size: 16px; font-weight: bold; color: #ffffff;
+          margin: 0 0 8px 0; padding-bottom: 6px;
+          border-bottom: 1px solid #00ffff50;
+        }
+        .map-popup p { margin: 4px 0; }
+        .map-popup strong { color: #00ffff; }
+        .map-popup hr { border: none; border-top: 1px solid #00ffff50; margin: 8px 0; }
       `}</style>
 
       <div className="ocean-background">
@@ -205,7 +219,18 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats, actions, mapRef }) 
             });
             return (
               <Marker key={float.id} position={[float.latitude, float.longitude]} icon={icon}>
-                <Popup><b>WMO ID:</b> {float.wmo_id}</Popup>
+                {/* --- UPDATED POPUP SECTION --- */}
+                <Popup>
+                  <div className="map-popup">
+                    <h3>ARGO Float Details</h3>
+                    <p><strong>ARGO ID:</strong> {float.wmo_id}</p>
+                    <p><strong>Region:</strong> {float.region || 'N/A'}</p>
+                    <p><strong>Last Seen:</strong> {formatTimestamp(float.last_seen)}</p>
+                    <hr/>
+                    <p><strong>Temp:</strong> {float.latest_temperature?.toFixed(1) ?? 'N/A'} °C</p>
+                    <p><strong>Pressure:</strong> {float.latest_pressure?.toFixed(1) ?? 'N/A'} dbar</p>
+                  </div>
+                </Popup>
               </Marker>
             );
         })}
@@ -215,4 +240,3 @@ const MapComponent: React.FC<MapComponentProps> = ({ floats, actions, mapRef }) 
 };
 
 export default MapComponent;
-

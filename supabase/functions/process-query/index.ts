@@ -1,138 +1,178 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.0.0";
+// supabase/functions/process-query/index.ts
+
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
 };
 
+// --- Tool Definitions ---
+// We've added a new tool, "get_example_float_info"
 const tools = [
   {
     "function_declarations": [
       {
-        "name": "get_location_details",
-        "description": "Get the country and ocean/sea name for a specific latitude and longitude.",
+        "name": "find_warmest_or_coldest_float",
+        "description": "Find the float with the highest or lowest surface temperature, returning its details including coordinates.",
         "parameters": {
           "type": "OBJECT",
           "properties": {
-            "latitude": { "type": "NUMBER" },
-            "longitude": { "type": "NUMBER" },
+            "condition": { "type": "STRING", "enum": ["warmest", "coldest"] }
           },
-          "required": ["latitude", "longitude"]
+          "required": ["condition"]
         }
+      },
+      {
+        "name": "get_example_float_info",
+        "description": "Retrieves information for a single, random float to be used as an example in a general informational response.",
+        "parameters": { "type": "OBJECT", "properties": {} } // No parameters needed
       }
     ]
   }
 ];
 
-async function get_location_details({ latitude, longitude }: { latitude: number, longitude: number }) {
-  console.log(`Getting location details for: ${latitude}, ${longitude}`);
-  try {
-    const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
-    if (!response.ok) throw new Error("Reverse geocoding API failed");
-    const data = await response.json();
-    return { "ocean": data.principalSubdivision, "countryName": data.countryName };
-  } catch (error) {
-    return { "error": `Could not determine location: ${error.message}` };
-  }
+// --- Tool Logic ---
+async function find_warmest_or_coldest_float(supabaseClient, { condition }) {
+  const { data, error } = await supabaseClient
+    .from("measurements")
+    .select(`temperature, floats!inner(wmo_id, latitude, longitude)`)
+    .lt('pressure', 20) // Use pressure for surface readings
+    .order('temperature', { ascending: condition === 'coldest' })
+    .limit(1)
+    .single();
+
+  if (error) throw new Error(`Supabase error: ${error.message}`);
+  
+  return {
+    wmo_id: data.floats.wmo_id,
+    temperature: data.temperature,
+    latitude: data.floats.latitude,
+    longitude: data.floats.longitude
+  };
 }
 
-serve(async (req) => {
-  console.log("Function invoked.");
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
-  try {
-    const { query } = await req.json();
-    console.log(`Received query: "${query}"`);
-
-    const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
-    if (!geminiApiKey) throw new Error("GEMINI_API_KEY secret not set in Supabase.");
-
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
-    );
-
-    console.log("Fetching ARGO data from Supabase...");
-    const { data: measurements, error } = await supabaseClient
-      .from("measurements")
-      .select(`*, floats ( wmo_id, latitude, longitude )`);
+// NEW FUNCTION: Fetches a random float to be used as an example
+async function get_example_float_info(supabaseClient) {
+    const { data, error } = await supabaseClient
+        .rpc('get_floats_with_latest_measurements') // Use our existing powerful function
+        .order('random()') // A simple way to get a random row in Postgres
+        .limit(1)
+        .single();
+    
     if (error) throw new Error(`Supabase error: ${error.message}`);
-    console.log("Successfully fetched ARGO data.");
 
-    const contents = [{
-      role: "user",
-      parts: [{ text: `
-        You are an expert oceanographic AI assistant. Your task is to answer the user's question based on the provided ARGO float data.
-        If you need to know the name of an ocean or country for a given coordinate, use your tools.
-        Current ARGO Data: ${JSON.stringify(measurements, null, 2)}
-        User's Question: "${query}"
-      `}]
-    }];
+    return {
+        wmo_id: data.wmo_id,
+        region: data.region,
+        temperature: data.latest_temperature
+    };
+}
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${geminiApiKey}`;
-    
-    console.log("Making first call to Gemini...");
-    let geminiResponse = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents, tools }),
-    });
+// --- Main Request Handler ---
+const handler = async (req: Request) => {
+    if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-    if (!geminiResponse.ok) {
-      const errorBody = await geminiResponse.text();
-      throw new Error(`Gemini API Error (1st call): ${errorBody}`);
+    try {
+        const { query } = await req.json();
+        const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
+        const supabaseClient = createClient(
+            Deno.env.get("SUPABASE_URL") ?? "",
+            Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+            { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
+        );
+
+        // UPDATED PROMPT: More conversational and allows for general questions
+        const contents = [{
+            role: "user",
+            parts: [{
+                text: `
+          You are a friendly and knowledgeable oceanographic AI assistant called FloatChat. 
+          Your primary task is to answer the user's question by using your available tools.
+
+          - If the user asks a specific question that matches a tool (like "find the warmest float"), use that tool and generate a reply and UI actions.
+          - If the user asks a general question (e.g., "what do floats do?", "tell me a fact"), you should provide a helpful, conversational answer. 
+          - To make your general answers more engaging, you MUST use the 'get_example_float_info' tool to fetch a real float and include its details in your reply as an example.
+
+          - Based on the result of any tool, you MUST generate a text reply AND a list of UI actions.
+          - For general informational answers where you use 'get_example_float_info', you can use the MAP_PAN_ZOOM and HIGHLIGHT_FLOAT actions to show the user the example float you're talking about.
+          - If you cannot answer or the request is out of scope, provide a friendly refusal and an empty actions array.
+
+          Your REQUIRED JSON Response format is ALWAYS:
+          {
+            "reply": "The text of your answer.",
+            "actions": [ { "type": "ACTION_TYPE", "payload": { ... } } ]
+          }
+
+          User's Question: "${query}"
+        `
+            }]
+        }];
+
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;
+
+        let geminiResponse = await fetch(geminiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents,
+                tools,
+                "generation_config": { "response_mime_type": "application/json" }
+            }),
+        });
+        if (!geminiResponse.ok) throw new Error(await geminiResponse.text());
+
+        let geminiResult = await geminiResponse.json();
+        let modelResponsePart = geminiResult.candidates[0].content.parts[0];
+
+        if (modelResponsePart.functionCall) {
+            const functionCall = modelResponsePart.functionCall;
+            let toolResult;
+
+            // Route to the correct tool logic
+            if (functionCall.name === 'find_warmest_or_coldest_float') {
+                toolResult = await find_warmest_or_coldest_float(supabaseClient, functionCall.args);
+            } else if (functionCall.name === 'get_example_float_info') {
+                toolResult = await get_example_float_info(supabaseClient);
+            } else {
+                throw new Error(`Unknown function call: ${functionCall.name}`);
+            }
+
+            contents.push(
+                { role: "model", parts: [modelResponsePart] },
+                { role: "tool", parts: [{ functionResponse: { name: functionCall.name, response: { "result": toolResult } } }] }
+            );
+
+            geminiResponse = await fetch(geminiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents,
+                    tools,
+                    "generation_config": { "response_mime_type": "application/json" }
+                }),
+            });
+            if (!geminiResponse.ok) throw new Error(await geminiResponse.text());
+            
+            geminiResult = await geminiResponse.json();
+            modelResponsePart = geminiResult.candidates[0].content.parts[0];
+        }
+
+        const aiResponseJson = JSON.parse(modelResponsePart.text);
+        return new Response(JSON.stringify(aiResponseJson), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200,
+        });
+
+    } catch (error) {
+        console.error("--- CRITICAL ERROR IN FUNCTION ---", error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500
+        });
     }
-    console.log("First Gemini call successful.");
-    
-    let geminiResult = await geminiResponse.json();
-    let modelResponsePart = geminiResult.candidates[0].content.parts[0];
+};
 
-    if (modelResponsePart.functionCall) {
-      console.log("Gemini requested a tool call:", modelResponsePart.functionCall.name);
-      const functionCall = modelResponsePart.functionCall;
-      
-      const toolResult = await get_location_details(functionCall.args);
-      console.log("Tool call result:", toolResult);
-
-      contents.push({ role: "model", parts: [modelResponsePart] });
-      contents.push({
-          role: "tool",
-          parts: [{ functionResponse: { name: functionCall.name, response: toolResult } }]
-      });
-
-      console.log("Making second call to Gemini with tool result...");
-      geminiResponse = await fetch(geminiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents, tools }),
-      });
-
-      if (!geminiResponse.ok) {
-        const errorBody = await geminiResponse.text();
-        throw new Error(`Gemini API Error (2nd call): ${errorBody}`);
-      }
-      console.log("Second Gemini call successful.");
-
-      geminiResult = await geminiResponse.json();
-      modelResponsePart = geminiResult.candidates[0].content.parts[0];
-    }
-
-    const aiResponseText = modelResponsePart.text;
-    console.log("Sending final reply:", aiResponseText);
-
-    return new Response(JSON.stringify({ reply: aiResponseText }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
-
-  } catch (error) {
-    console.error("Critical error in function:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
-  }
-});
-
+// --- Entry Point ---
+serve(handler);

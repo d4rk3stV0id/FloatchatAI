@@ -1,8 +1,15 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, Calendar, Globe, ArrowUp, ArrowDown } from 'lucide-react';
+import { TrendingUp, Calendar, Globe, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
+import { useRegionalTemps, useSummaryStats } from '@/lib/dataHooks';
 
 const TrendsView: React.FC = () => {
+  const { data: regionalData, isLoading: isLoadingRegional, error: regionalError } = useRegionalTemps();
+  const { data: summaryData, isLoading: isLoadingSummary, error: summaryError } = useSummaryStats();
+
+  const tempTrend = summaryData?.temp_trend ?? 0;
+  const trendColor = tempTrend > 0 ? 'text-green-500' : tempTrend < 0 ? 'text-red-500' : 'text-muted-foreground';
+
   return (
     <div className="h-full w-full overflow-y-auto p-6 animate-fade-in-up">
       <div className="flex items-center justify-between mb-8">
@@ -17,32 +24,25 @@ const TrendsView: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-ocean-primary" />
-              Temperature Trends
+              Temperature Trends (30-Day Change)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <span className="text-sm">Global Average</span>
-                <div className="flex items-center gap-2 text-green-500">
-                  <ArrowUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">+0.2°C</span>
+              {isLoadingSummary ? (
+                <div className="h-12 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>
+              ) : summaryError ? (
+                 <div className="text-destructive text-sm p-3">Could not load trend data.</div>
+              ) : (
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <span className="text-sm">Global Average Trend</span>
+                  <div className={`flex items-center gap-2 ${trendColor}`}>
+                    {tempTrend > 0 && <ArrowUp className="h-4 w-4" />}
+                    {tempTrend < 0 && <ArrowDown className="h-4 w-4" />}
+                    <span className="text-sm font-medium">{tempTrend.toFixed(2)}°C</span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <span className="text-sm">Indian Ocean</span>
-                <div className="flex items-center gap-2 text-green-500">
-                  <ArrowUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">+0.3°C</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <span className="text-sm">Deep Water</span>
-                <div className="flex items-center gap-2 text-red-500">
-                  <ArrowDown className="h-4 w-4" />
-                  <span className="text-sm font-medium">-0.1°C</span>
-                </div>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -56,7 +56,7 @@ const TrendsView: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="h-48 bg-gradient-to-r from-ocean-primary/20 to-ocean-secondary/20 rounded-lg flex items-center justify-center">
-              <span className="text-muted-foreground">Seasonal trend chart</span>
+              <span className="text-muted-foreground">Seasonal trend chart (placeholder)</span>
             </div>
           </CardContent>
         </Card>
@@ -66,27 +66,27 @@ const TrendsView: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-ocean-primary" />
-            Regional Analysis
+            Regional Average Temperatures
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="p-4 bg-muted/30 rounded-lg text-center">
-              <h4 className="font-medium mb-2">Pacific Ocean</h4>
-              <div className="text-2xl font-bold text-ocean-primary mb-1">18.5°C</div>
-              <div className="text-xs text-muted-foreground">Average Temperature</div>
-            </div>
-            <div className="p-4 bg-muted/30 rounded-lg text-center">
-              <h4 className="font-medium mb-2">Atlantic Ocean</h4>
-              <div className="text-2xl font-bold text-ocean-primary mb-1">17.2°C</div>
-              <div className="text-xs text-muted-foreground">Average Temperature</div>
-            </div>
-            <div className="p-4 bg-muted/30 rounded-lg text-center">
-              <h4 className="font-medium mb-2">Indian Ocean</h4>
-              <div className="text-2xl font-bold text-ocean-primary mb-1">19.1°C</div>
-              <div className="text-xs text-muted-foreground">Average Temperature</div>
-            </div>
-          </div>
+            {isLoadingRegional ? (
+                <div className="h-24 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
+            ) : regionalError ? (
+                <div className="text-destructive text-center p-4">Error loading regional data.</div>
+            ) : !regionalData || regionalData.length === 0 ? (
+                <div className="text-center text-muted-foreground p-4">No regional data available. Add a 'region' to your floats.</div>
+            ) : (
+                <div className="grid md:grid-cols-3 gap-4">
+                    {regionalData.map((region, index) => (
+                        <div key={index} className="p-4 bg-muted/30 rounded-lg text-center">
+                            <h4 className="font-medium mb-2">{region.region} Ocean</h4>
+                            <div className="text-2xl font-bold text-ocean-primary mb-1">{region.avg_temp.toFixed(1)}°C</div>
+                            <div className="text-xs text-muted-foreground">Average Temperature</div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </CardContent>
       </Card>
     </div>
