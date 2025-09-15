@@ -14,7 +14,7 @@ const setupTranslateEngine = async () => {
 setupTranslateEngine();
 // ------------------------------
 
-type Language = 'en' | 'hi' | 'kn' | 'ta' | 'te' | 'ml' | 'mr' | 'bn' | 'ur';
+type Language = 'en' | 'hi' | 'kn' | 'ta' | 'te' | 'ml' | 'mr' | 'bn' | 'ur' | 'fr' | 'de';
 
 interface LanguageContextType {
   language: Language;
