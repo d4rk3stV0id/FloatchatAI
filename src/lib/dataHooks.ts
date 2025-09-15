@@ -1,9 +1,7 @@
-// lib/dataHooks.ts
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 
-// --- This is the only hook you'll need for your analytics pages ---
+// --- Hook for Main Analytics & Trends ---
 export interface DashboardAnalytics {
   global_avg_temp?: number;
   global_avg_salinity?: number;
@@ -27,8 +25,7 @@ export const useDashboardAnalytics = () => {
   });
 };
 
-
-// --- Your hook for the map remains the same ---
+// --- Hook for Map Floats ---
 export interface Float {
   id: number;
   wmo_id: number;
@@ -50,7 +47,7 @@ export const useFloats = () => {
   return useQuery({ queryKey: ['floats'], queryFn: fetchFloats });
 };
 
-// --- New hook for Professional Metrics dashboard ---
+// --- Hook for Professional Metrics ---
 export interface MetricsData {
   stats: {
     temperature: { avg: number; min: number; max: number };
@@ -68,14 +65,12 @@ export interface MetricsData {
 const fetchMetricsData = async (): Promise<MetricsData> => {
   const { data, error } = await supabase.rpc('get_metrics_data');
   if (error) throw new Error(error.message);
-  return data || {
-    stats: {
-      temperature: { avg: 22.5, min: 18.2, max: 28.3 },
-      salinity: { avg: 35.2, min: 32.1, max: 37.8 },
-      pressure: { avg: 125.4, min: 5.2, max: 245.6 }
-    },
-    timeseries: []
-  };
+
+  // The timeseries data comes back newest-first, so we reverse it for the chart
+  if (data.timeseries) {
+    data.timeseries.reverse();
+  }
+  return data;
 };
 
 export const useMetricsData = () => {
