@@ -4,6 +4,106 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(90deg, #00b4d8, #48cae4, #0077b6, #005f9e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Accent Text */
+  .accent-text {
+    color: #00b4d8;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* Vibrant Section Headings */
+  .section-heading {
+    @apply gradient-text text-4xl font-bold tracking-tighter mb-6;
+    text-shadow: 0 2px 16px rgba(0,180,216,0.18);
+  }
+
+  /* Scroll Animations (for use with Intersection Observer or libraries) */
+  .scroll-fade-in {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  }
+  .scroll-fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .scroll-slide-in-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  }
+  .scroll-slide-in-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .scroll-slide-in-right {
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  }
+  .scroll-slide-in-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .scroll-scale-in {
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  }
+  .scroll-scale-in.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Interactive Accent Underline */
+  .interactive-underline {
+    position: relative;
+    cursor: pointer;
+    color: #00b4d8;
+    transition: color 0.2s;
+  }
+  .interactive-underline::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 2px;
+    background: linear-gradient(90deg, #00b4d8, #48cae4);
+    border-radius: 2px;
+    opacity: 0.7;
+    transform: scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .interactive-underline:hover::after {
+    transform: scaleX(1);
+  }
+  .interactive-underline:hover {
+    color: #48cae4;
+  }
+
+  /* Vibrant Card Border Animation */
+  .card-animated-border {
+    border: 2px solid transparent;
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      linear-gradient(90deg, #00b4d8, #48cae4, #0077b6, #03045e) border-box;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+  .card-animated-border:hover {
+    box-shadow: 0 8px 32px #00b4d8cc;
+    border-color: #00b4d8;
+  }
+}
+
 /* FloatChat Design System - ARGO Ocean Data Interface */
 
 @layer base {
@@ -52,8 +152,82 @@
     --gradient-glow: radial-gradient(circle, hsl(var(--ocean-primary) / 0.2), transparent);
     
     /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-glow: box-shadow 0.3s ease-out;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-glow: box-shadow 0.3s ease-out;
+  --transition-fade: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-scale: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slide: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Animations */
+  --animation-fade-in: fadeIn 0.7s ease-in;
+  --animation-fade-in-up: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-slide-in: slideIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-scale-in: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-pulse: pulse 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+@layer utilities {
+  /* Fade In */
+  .animate-fade-in {
+    animation: fadeIn 0.7s ease-in;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Fade In Up */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Slide In */
+  .animate-slide-in {
+    animation: slideIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Scale In */
+  .animate-scale-in {
+    animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Pulse */
+  .animate-pulse-strong {
+    animation: pulse 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.04); }
+  }
+
+  /* Button Hover Pop */
+  .hover\:pop:hover {
+    transform: scale(1.06) translateY(-2px);
+    transition: var(--transition-scale);
+  }
+
+  /* Card Hover Lift */
+  .hover\:lift:hover {
+    box-shadow: 0 8px 32px hsl(var(--ocean-primary) / 0.18);
+    transform: translateY(-6px) scale(1.03);
+    transition: var(--transition-scale);
+  }
+
+  /* Smooth transitions for interactive elements */
+  .smooth-transition {
+    transition: var(--transition-smooth);
+  }
+}
     
     /* Shadows */
     --shadow-ocean: 0 10px 30px -10px hsl(var(--ocean-primary) / 0.3);
@@ -62,51 +236,54 @@
   }
 
   .dark {
-    /* Deep Ocean Dark Theme */
-    --background: 210 100% 8%;
-    --foreground: 0 0% 88%;
-    
-    --card: 210 50% 11%;
-    --card-foreground: 0 0% 88%;
-    
-    --popover: 210 50% 11%;
-    --popover-foreground: 0 0% 88%;
-    
-    --primary: 180 100% 50%;
-    --primary-foreground: 210 100% 8%;
-    
-    --secondary: 16 100% 66%;
-    --secondary-foreground: 0 0% 100%;
-    
-    --muted: 210 50% 11%;
-    --muted-foreground: 0 0% 65%;
-    
-    --accent: 180 100% 50%;
-    --accent-foreground: 210 100% 8%;
-    
+    /* Vibrant Deep Ocean Dark Theme */
+    --background: 222 100% 12%; /* #03045E */
+    --foreground: 210 100% 97%; /* #CAF0F8 */
+
+    --card: 221 96% 17%; /* #023E8A */
+    --card-foreground: 210 100% 97%;
+
+    --popover: 221 96% 17%;
+    --popover-foreground: 210 100% 97%;
+
+    --primary: 197 100% 36%; /* #0077B6 */
+    --primary-foreground: 210 100% 97%;
+
+    --secondary: 191 100% 40%; /* #0096C7 */
+    --secondary-foreground: 210 100% 97%;
+
+    --muted: 201 100% 61%; /* #48CAE4 */
+    --muted-foreground: 210 100% 97%;
+
+    --accent: 186 100% 47%; /* #00B4D8 */
+    --accent-foreground: 210 100% 97%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    
-    --border: 210 50% 18%;
-    --input: 210 50% 18%;
-    --ring: 180 100% 50%;
-    
-    /* Ocean Theme Dark */
-    --ocean-primary: 180 100% 50%;
-    --ocean-secondary: 16 100% 66%;
-    --ocean-surface: 210 50% 11%;
-    --ocean-deep: 210 100% 8%;
-    --ocean-accent: 188 100% 35%;
-    
+
+    --border: 197 100% 36%; /* #0077B6 */
+    --input: 197 100% 36%;
+    --ring: 201 100% 61%; /* #48CAE4 */
+
+    /* Ocean Theme Dark - Vibrant Blues */
+    --ocean-primary: 197 100% 36%; /* #0077B6 */
+    --ocean-secondary: 191 100% 40%; /* #0096C7 */
+    --ocean-surface: 221 96% 17%; /* #023E8A */
+    --ocean-deep: 222 100% 12%; /* #03045E */
+    --ocean-accent: 186 100% 47%; /* #00B4D8 */
+    --ocean-bright: 187 72% 80%; /* #90E0EF */
+    --ocean-light: 186 77% 87%; /* #ADE8F4 */
+    --ocean-pale: 186 74% 92%; /* #CAF0F8 */
+
     /* Dark Gradients */
-    --gradient-ocean: linear-gradient(135deg, hsl(var(--ocean-deep)), hsl(var(--ocean-accent)));
-    --gradient-surface: linear-gradient(180deg, hsl(var(--ocean-surface)), hsl(var(--muted)));
-    --gradient-glow: radial-gradient(circle, hsl(var(--ocean-primary) / 0.3), transparent);
-    
+    --gradient-ocean: linear-gradient(135deg, hsl(var(--ocean-deep)), hsl(var(--ocean-accent)), hsl(var(--ocean-bright)));
+    --gradient-surface: linear-gradient(180deg, hsl(var(--ocean-surface)), hsl(var(--muted)), hsl(var(--ocean-light)));
+  --gradient-glow: none;
+
     /* Dark Shadows */
-    --shadow-ocean: 0 10px 30px -10px hsl(var(--ocean-primary) / 0.5);
-    --shadow-glow: 0 0 40px hsl(var(--ocean-primary) / 0.6);
-    --shadow-card: 0 4px 20px -4px hsl(var(--ocean-deep) / 0.3);
+    --shadow-ocean: 0 10px 30px -10px hsl(var(--ocean-primary) / 0.7);
+  --shadow-glow: none;
+    --shadow-card: 0 4px 20px -4px hsl(var(--ocean-deep) / 0.5);
   }
 }
 

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import Globe3D from '@/components/Globe3D';
+
 import ThemeToggle from '@/components/ThemeToggle';
 import { ArrowRight, Waves, Database, BarChart3, MapPin, Mail, Phone, Globe as GlobeIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Spline from '@splinetool/react-spline';
+
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -21,9 +21,9 @@ const Landing: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+  <div className="min-h-screen bg-background text-foreground animate-fade-in">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50">
+  <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50 animate-slide-in">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <Waves className="h-6 w-6 text-ocean-primary" />
@@ -45,167 +45,207 @@ const Landing: React.FC = () => {
       </header>
       
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden">
+  <section className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden animate-fade-in-up">
         <div className="absolute inset-0 bg-glow-gradient opacity-30" />
-        
         <div className={`container mx-auto px-6 text-center relative z-10 transition-all duration-1000 ${
           isVisible ? 'animate-fade-in-up' : 'opacity-0'
         }`}>
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            
-            {/* Left Content */}
-            <div className="lg:w-1/2 lg:text-left space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-5xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
-                  FloatChat
-                </h1>
-                <p className="text-2xl lg:text-3xl text-muted-foreground font-light">
-                  AI-Powered ARGO Ocean Data Intelligence
-                </p>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">
-                  Unlock the secrets of our oceans through advanced AI conversation. 
-                  Interact with real-time ARGO float data like never before.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button 
-                  variant="default" 
-                  size="xl"
-                  onClick={() => navigate('/auth')}
-                  className="group"
-                >
-                  Launch Application
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </div>
+          <div className="max-w-3xl mx-auto space-y-8">
+            <h1 className="text-5xl lg:text-7xl font-bold tracking-tighter gradient-text animate-scale-in">
+              FloatChat: <span className="accent-text">Ocean Data, Simplified</span>
+            </h1>
+            <p className="text-2xl lg:text-3xl accent-text font-semibold animate-fade-in">
+              Turning complex ocean science into clear, actionable intelligence for everyone.
+            </p>
+            <p className="text-lg text-muted-foreground">
+              The foundation of ocean science is data—ARGO floats, satellites, and models. But this data is locked away in technical formats, out of reach for most. FloatChat is your universal translator: it cleans, fuses, and simplifies raw data, letting you chat with the ocean and get answers instantly. No expertise required—just curiosity.
+            </p>
+            <div className="flex flex-col gap-2 text-base">
+              <span className="accent-text">• Ask about ocean trends, disasters, or climate—get clear, visual answers.</span>
+              <span className="accent-text">• Built for students, scientists, agencies, and anyone who cares about the sea.</span>
+              <span className="accent-text">• Empowering early warnings, research, and public awareness.</span>
             </div>
-
-            {/* Right Content - Globe */}
-            <div className="lg:w-1/2 flex justify-center">
-              <Spline scene="https://prod.spline.design/FP7uygAMV9h6Hopl/scene.splinecode" className="flex justify-center"/>
-              {/*<div className="relative">
-                <Globe3D className="animate-scale-in" />
-                <div className="absolute -inset-4 bg-ocean-primary/20 blur-xl rounded-full animate-ocean-pulse" />
-              </div>*/}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+              <Button 
+                variant="default" 
+                size="xl"
+                onClick={() => navigate('/auth')}
+                className="group hover:pop smooth-transition accent-text"
+              >
+                Try FloatChat
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </div>
           </div>
         </div>
+      </section>
 
+      {/* How It Works Section */}
+  <section id="how" className="py-24 px-6 bg-card/30 animate-fade-in-up">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
+            <h2 className="section-heading">How It Works</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              FloatChat solves the “first-mile” problem of ocean data: making raw, complex files readable and useful before any prediction or visualization. Here’s how:
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20">
+              <h3 className="text-xl font-semibold mb-4">1. Data Collection</h3>
+              <p className="text-muted-foreground">We fetch the latest ARGO float, satellite, and model data—no matter the format or source.</p>
+            </Card>
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20">
+              <h3 className="text-xl font-semibold mb-4">2. Smart Processing</h3>
+              <p className="text-muted-foreground">Automated scripts clean, structure, and fuse raw data into a unified, easy-to-use format (JSON feeds).</p>
+            </Card>
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20">
+              <h3 className="text-xl font-semibold mb-4">3. Conversational AI</h3>
+              <p className="text-muted-foreground">Our AI lets you ask questions in plain language and get instant, actionable answers—plus visualizations and predictions.</p>
+            </Card>
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 px-6">
+  <section id="features" className="py-24 px-6 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="text-center mb-16 animate-fade-in-up">
-            <h2 className="text-4xl font-bold tracking-tighter mb-6">Ocean Intelligence Platform</h2>
+            <h2 className="section-heading">Why FloatChat?</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Revolutionizing oceanographic research through conversational AI and real-time data visualization.
+              We make ocean data accessible, understandable, and useful—no matter your background.
             </p>
           </div>
-
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-8 text-center hover:shadow-glow transition-all duration-300 border-ocean-primary/20 card-shadow">
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-ocean-gradient rounded-full mb-6">
                 <Database className="h-8 w-8 text-primary-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-4">Real-time ARGO Data</h3>
+              <h3 className="text-xl font-semibold mb-4">Universal Data Translator</h3>
               <p className="text-muted-foreground">
-                Access live data from thousands of ARGO floats worldwide, 
-                providing unprecedented ocean insights.
+                Our pipeline cleans and fuses raw ARGO, satellite, and model data—turning complex files into a single, easy-to-use source of truth.
               </p>
             </Card>
-
-            <Card className="p-8 text-center hover:shadow-glow transition-all duration-300 border-ocean-primary/20 card-shadow">
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-ocean-gradient rounded-full mb-6">
                 <BarChart3 className="h-8 w-8 text-primary-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-4">AI Visualizations</h3>
+              <h3 className="text-xl font-semibold mb-4">AI-Powered Insights</h3>
               <p className="text-muted-foreground">
-                Generate complex data visualizations through natural language queries 
-                and intelligent analysis.
+                Ask questions in plain language. Our AI finds answers, visualizes trends, and even predicts disasters—no technical skills needed.
               </p>
             </Card>
-
-            <Card className="p-8 text-center hover:shadow-glow transition-all duration-300 border-ocean-primary/20 card-shadow">
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-ocean-gradient rounded-full mb-6">
                 <MapPin className="h-8 w-8 text-primary-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-4">Interactive Mapping</h3>
+              <h3 className="text-xl font-semibold mb-4">Actionable & Inclusive</h3>
               <p className="text-muted-foreground">
-                Explore ocean data through intuitive interactive maps 
-                focused on critical research regions.
+                From students to disaster officials, anyone can access life-saving intelligence and climate knowledge—instantly.
               </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Innovation Highlights Section */}
+  <section id="innovation" className="py-24 px-6 bg-card/10 animate-fade-in-up">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
+            <h2 className="section-heading">Innovation Highlights</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              What makes FloatChat unique? We go beyond data access—delivering intelligence, prediction, and inclusivity at scale.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <h3 className="text-xl font-semibold mb-4">Data Simplification at Scale</h3>
+              <p className="text-muted-foreground">We process and unify scientific data from many sources, making it simple and reliable for any user.</p>
+            </Card>
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <h3 className="text-xl font-semibold mb-4">Predictive Calamity Monitoring</h3>
+              <p className="text-muted-foreground">By correlating ARGO and atmospheric data, our AI can spot early signs of cyclones and disasters—days in advance.</p>
+            </Card>
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <h3 className="text-xl font-semibold mb-4">AI as a Smart Router</h3>
+              <p className="text-muted-foreground">Gemini 1.5 powers a dynamic UI, calling the right predictive tools for each user’s question—making the experience seamless and powerful.</p>
             </Card>
           </div>
         </div>
       </section>
 
       {/* Mission Section */}
-      <section id="mission" className="py-24 px-6 bg-card/50">
+  <section id="mission" className="py-24 px-6 bg-card/50 animate-fade-in-up">
         <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="animate-fade-in-up">
-              <h2 className="text-4xl font-bold tracking-tighter mb-6">Our Mission</h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                FloatChat bridges the gap between complex oceanographic data and intuitive understanding. 
-                Our AI-powered platform makes ARGO float data accessible to researchers, students, and 
-                ocean enthusiasts worldwide.
-              </p>
-              <p className="text-lg text-muted-foreground mb-8">
-                By leveraging advanced machine learning and conversational AI, we're democratizing 
-                ocean science and accelerating marine research discoveries.
-              </p>
-            </div>
-
-            <div className="relative">
-              <Card className="p-8 card-shadow border-ocean-primary/20">
-                <h3 className="text-2xl font-semibold mb-4">The ARGO Network</h3>
-                <p className="text-muted-foreground mb-6">
-                  The global ARGO network consists of over 4,000 autonomous floats 
-                  that continuously monitor ocean temperature, salinity, and currents 
-                  down to 2000m depth.
-                </p>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-3xl font-bold text-ocean-primary">4000+</div>
-                    <div className="text-sm text-muted-foreground">Active Floats</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold text-ocean-primary">2000m</div>
-                    <div className="text-sm text-muted-foreground">Max Depth</div>
-                  </div>
-                </div>
+          <div className="max-w-4xl mx-auto animate-fade-in-up text-center space-y-8">
+            <h2 className="section-heading">Bridging the Gap</h2>
+            <p className="text-lg text-muted-foreground">
+              With oceans covering 70% of our planet, FloatChat puts the Indian Ocean at the center—connecting students, scientists, policymakers, and citizens to understand and protect our blue world. Our vision: empower people with the intelligence and warnings they need to stay safe, prepared, and informed.
+            </p>
+            <div className="grid md:grid-cols-3 gap-8 mt-8">
+              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+                <h3 className="font-semibold mb-2">Government & Disaster Agencies</h3>
+                <p className="text-muted-foreground">Early warnings to save lives and resources.</p>
+              </Card>
+              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+                <h3 className="font-semibold mb-2">Researchers & Students</h3>
+                <p className="text-muted-foreground">Accelerate climate studies and make oceanography engaging.</p>
+              </Card>
+              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+                <h3 className="font-semibold mb-2">Industries & NGOs</h3>
+                <p className="text-muted-foreground">Safer fisheries, shipping, and accessible insights for conservation.</p>
               </Card>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Challenges & Solutions Section */}
+  <section id="challenges" className="py-24 px-6 bg-card/30 animate-fade-in-up">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
+            <h2 className="section-heading">Challenges & Solutions</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Building FloatChat isn’t easy. Here’s how we tackle the toughest problems in ocean data:
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <h3 className="text-xl font-semibold mb-4">Data Complexity</h3>
+              <p className="text-muted-foreground">Automated jobs fetch and preprocess ARGO data, updating simplified feeds for easy access.</p>
+            </Card>
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <h3 className="text-xl font-semibold mb-4">API Rate Limits</h3>
+              <p className="text-muted-foreground">A backend cache (Redis/Postgres) stores responses, so repeated requests don’t overload APIs.</p>
+            </Card>
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <h3 className="text-xl font-semibold mb-4">UI/Map Performance</h3>
+              <p className="text-muted-foreground">We use clustering (supercluster) to group floats, keeping the map fast and smooth—even with thousands of points.</p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-6">
+  <section id="contact" className="py-24 px-6 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tighter mb-6">Get in Touch</h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                We're excited to hear from you. Reach out with any questions or collaboration ideas.
-              </p>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Have questions, ideas, or want to collaborate? Reach out and join our mission to make ocean data work for everyone.
+            </p>
           </div>
-
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <Card className="p-6 text-center card-shadow border-ocean-primary/20">
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
               <Mail className="h-8 w-8 text-ocean-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">Email</h3>
               <a href="mailto:contact@floatchat.com" className="text-muted-foreground hover:text-ocean-primary">contact@floatchat.com</a>
             </Card>
-
-            <Card className="p-6 text-center card-shadow border-ocean-primary/20">
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
               <Phone className="h-8 w-8 text-ocean-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">Phone</h3>
               <p className="text-muted-foreground">+91 80 1234 5678</p>
             </Card>
-
-            <Card className="p-6 text-center card-shadow border-ocean-primary/20">
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
               <GlobeIcon className="h-8 w-8 text-ocean-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">Website</h3>
               <p className="text-muted-foreground">www.floatchat.com</p>
@@ -215,14 +255,14 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-border/50 bg-card/20">
+  <footer className="py-12 px-6 border-t border-border/50 bg-card/20 animate-fade-in-up">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Waves className="h-6 w-6 text-ocean-primary" />
             <span className="text-xl font-bold">FloatChat</span>
           </div>
           <p className="text-muted-foreground">
-            © 2025 FloatChat. Revolutionizing ocean data through AI.
+            © 2025 FloatChat. Making ocean intelligence accessible for all.
           </p>
         </div>
       </footer>
