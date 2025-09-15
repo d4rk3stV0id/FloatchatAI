@@ -5,6 +5,7 @@ import Globe3D from '@/components/Globe3D';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ArrowRight, Waves, Database, BarChart3, MapPin, Mail, Phone, Globe as GlobeIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Spline from '@splinetool/react-spline';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const Landing: React.FC = () => {
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Button onClick={() => navigate('/auth')} variant="ocean" className="hidden sm:flex">
+            <Button onClick={() => navigate('/auth')} variant="default" className="hidden sm:flex">
               Launch App
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -69,7 +70,7 @@ const Landing: React.FC = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button 
-                  variant="hero" 
+                  variant="default" 
                   size="xl"
                   onClick={() => navigate('/auth')}
                   className="group"
@@ -82,10 +83,11 @@ const Landing: React.FC = () => {
 
             {/* Right Content - Globe */}
             <div className="lg:w-1/2 flex justify-center">
-              <div className="relative">
+              <Spline scene="https://prod.spline.design/FP7uygAMV9h6Hopl/scene.splinecode" className="flex justify-center"/>
+              {/*<div className="relative">
                 <Globe3D className="animate-scale-in" />
                 <div className="absolute -inset-4 bg-ocean-primary/20 blur-xl rounded-full animate-ocean-pulse" />
-              </div>
+              </div>*/}
             </div>
           </div>
         </div>
