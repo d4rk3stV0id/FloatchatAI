@@ -11,10 +11,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 
 // Icons
-import { CornerDownLeft, BrainCircuit } from 'lucide-react';
+import { CornerDownLeft, BrainCircuit, Mic } from 'lucide-react';
 
 // --- New Imports for the free translation method ---
 import { useTranslate } from '@/contexts/LanguageContexts';
+
+// --- NEW: Voice Recognition Imports ---
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 // Types
 interface ChatMessageData {
@@ -67,23 +70,43 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // --- NEW: Voice recognition hooks ---
+  const {
+    transcript,
+    listening,
+    browserSupportsSpeechRecognition,
+    isMicrophoneAvailable
+  } = useSpeechRecognition();
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!chatInput.trim()) return;
+  // --- NEW: Use effect to handle voice input ---
+  useEffect(() => {
+    // If the browser doesn't support speech recognition, do nothing
+    if (!browserSupportsSpeechRecognition) return;
 
-    const userMessage: ChatMessageData = { id: Date.now().toString(), type: 'user', content: chatInput };
+    // When the user stops speaking, if there's a transcript, send the message.
+    if (!listening && transcript) {
+      handleSendMessage(transcript);
+    }
+  }, [listening, transcript, browserSupportsSpeechRecognition]);
+
+  // --- MODIFIED: handleSendMessage now accepts an optional parameter for voice input ---
+  const handleSendMessage = async (queryContent?: string) => {
+    const query = queryContent || chatInput; // Use voice input or text input
+    if (!query.trim()) return;
+
+    const userMessage: ChatMessageData = { id: Date.now().toString(), type: 'user', content: query };
     const loadingMessage: ChatMessageData = { id: (Date.now() + 1).toString(), type: 'loading', content: '...' };
 
     setMessages(prev => [...prev, userMessage, loadingMessage]);
-    const currentQuery = chatInput;
-    setChatInput('');
+    setChatInput(''); // Clear the input after sending
 
     try {
       const { data, error } = await supabase.functions.invoke('process-query', {
-        body: { query: currentQuery },
+        body: { query: query },
       });
 
       if (error) throw new Error(error.message);
@@ -102,6 +125,14 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
     }
   };
 
+  const handleVoiceButtonClick = () => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+    } else {
+      SpeechRecognition.startListening({ continuous: false });
+    }
+  };
+
   return (
     <Card className="w-96 h-full flex flex-col bg-card/80 backdrop-blur-lg border-l border-border/50 shadow-2xl">
       <div className="p-4 border-b border-border/50 flex items-center gap-2">
@@ -112,7 +143,6 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
       <ScrollArea className="flex-1 p-4 min-h-0">
         <div className="space-y-4">
           {messages.map((message) => (
-            // We now use the new ChatBubble component here.
             <ChatBubble key={message.id} message={message} />
           ))}
           <div ref={messagesEndRef} />
@@ -126,12 +156,26 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
             value={chatInput} 
             onChange={(e) => setChatInput(e.target.value)} 
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            className="pr-12"
+            className="pr-16"
+            disabled={listening} // Disable text input while listening
           />
+          {browserSupportsSpeechRecognition && (
+            <Button
+              variant="ghost" 
+              size="icon" 
+              onClick={handleVoiceButtonClick} 
+              disabled={!isMicrophoneAvailable}
+              className={`absolute top-1/2 right-9 -translate-y-1/2 h-8 w-8 transition-colors ${
+                listening ? 'text-red-500 hover:bg-red-500/20' : 'text-blue-500 hover:bg-blue-500/20'
+              }`}
+            >
+              <Mic className="h-4 w-4" />
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={handleSendMessage} 
+            onClick={() => handleSendMessage()} 
             disabled={!chatInput.trim()}
             className="absolute top-1/2 right-1 -translate-y-1/2 h-8 w-8 hover:bg-blue-600/20"
           >
