@@ -1,15 +1,9 @@
-// src/contexts/LanguageContext.tsx
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import translate from 'translate';
 
 // --- Translation Engine Setup ---
-// We're setting the translation engine's options here one time.
-// This is an async operation, but we only need to do it once.
 const setupTranslateEngine = async () => {
   try {
-    // Note: The 'from' language is automatically detected.
-    // The key can be a placeholder as the free tier is used.
     translate.engine = "google";
     translate.key = "any-key-will-work-for-free-tier";
     console.log("Translation engine initialized.");
@@ -20,7 +14,7 @@ const setupTranslateEngine = async () => {
 setupTranslateEngine();
 // ------------------------------
 
-type Language = 'en' | 'hi';
+type Language = 'en' | 'hi' | 'kn' | 'ta' | 'te' | 'ml' | 'mr' | 'bn' | 'ur';
 
 interface LanguageContextType {
   language: Language;
@@ -53,8 +47,8 @@ export const useTranslate = (text: string) => {
   const [translatedText, setTranslatedText] = useState(text);
 
   useEffect(() => {
-    if (language === 'en') {
-      setTranslatedText(text); // If English, just use the original text
+    if (language === 'en' || !text) {
+      setTranslatedText(text);
       return;
     }
     
@@ -68,7 +62,7 @@ export const useTranslate = (text: string) => {
       } catch (error) {
         console.error("Translation failed:", error);
         if (isMounted) {
-          setTranslatedText(text); // Fallback to original text on error
+          setTranslatedText(text);
         }
       }
     };
@@ -76,15 +70,15 @@ export const useTranslate = (text: string) => {
     doTranslation();
 
     return () => {
-      isMounted = false; // Cleanup to prevent state updates on unmounted components
+      isMounted = false;
     };
-  }, [text, language]); // Re-run translation if text or language changes
+  }, [text, language]);
 
   return translatedText;
-  
 };
 
+// The reusable translation component
 export const T: React.FC<{ children: string }> = ({ children }) => {
-    const translatedText = useTranslate(children);
-    return <>{translatedText}</>;
-  };
+  const translatedText = useTranslate(children);
+  return <>{translatedText}</>;
+};
