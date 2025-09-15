@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, Marker, Popup, GeoJSON, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { AIAction } from '@/pages/dashboard';
+import { AIAction } from '@/pages/Dashboard';
 import { Float } from '@/lib/dataHooks'; // Make sure this is the updated Float type
 
 interface MapComponentProps {
