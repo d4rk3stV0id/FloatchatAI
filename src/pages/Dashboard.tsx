@@ -5,10 +5,11 @@ import MapComponent from '@/components/MapComponent';
 import AIChatPanel from '@/components/AIChatPanel';
 import AnalyticsView from '@/components/AnalyticsView';
 import TrendsView from '@/components/TrendsView';
+import ProfessionalMetricsView from '@/components/ProfessionalMetricsView';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Settings, Menu, User, LogOut, BarChart3, TrendingUp, ChevronRight, ChevronLeft, MapPin } from 'lucide-react';
+import { Settings, Menu, User, LogOut, BarChart3, TrendingUp, ChevronRight, ChevronLeft, MapPin, LayoutDashboard } from 'lucide-react';
 import { useFloats } from '@/lib/dataHooks';
 import { T } from '@/contexts/LanguageContexts';
 
@@ -16,7 +17,7 @@ export interface AIAction {
   type: 'MAP_PAN_ZOOM' | 'HIGHLIGHT_FLOAT' | 'SHOW_CHART';
   payload: any;
 }
-type ActiveView = 'map' | 'analytics' | 'trends';
+type ActiveView = 'map' | 'analytics' | 'trends' | 'metrics';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ const Dashboard: React.FC = () => {
     switch (activeView) {
       case 'analytics': return <AnalyticsView />;
       case 'trends': return <TrendsView />;
+      case 'metrics': return <ProfessionalMetricsView />;
       case 'map':
       default:
         if (isLoading) return <div className="h-full flex items-center justify-center"><T>Loading Map...</T></div>;
@@ -87,6 +89,7 @@ const Dashboard: React.FC = () => {
           <NavItem icon={MapPin} label="Ocean Map" view="map" />
           <NavItem icon={BarChart3} label="Analytics" view="analytics" />
           <NavItem icon={TrendingUp} label="Trends" view="trends" />
+          <NavItem icon={LayoutDashboard} label="Professional Metrics" view="metrics" />
         </div>
         <div className={`flex flex-col gap-2 ${isSidebarExpanded ? 'px-4' : 'px-2 items-center'}`}>
           <TooltipProvider delayDuration={0}><Tooltip>

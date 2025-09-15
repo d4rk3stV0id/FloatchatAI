@@ -71,7 +71,7 @@ const AnalyticsView: React.FC = () => {
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={data?.depth_profile}
+                data={data?.depth_profile || []}
                 margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />

@@ -60,7 +60,7 @@ const TrendsView: React.FC = () => {
             <div className="h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart 
-                        data={data?.seasonal_pattern}
+                        data={data?.seasonal_pattern || []}
                         margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
                     >
                         <defs>
@@ -93,7 +93,7 @@ const TrendsView: React.FC = () => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {!data?.regional_temps || data.regional_temps.length === 0 ? (
+                    {!data?.regional_temps || !Array.isArray(data.regional_temps) || data.regional_temps.length === 0 ? (
                         <div className="col-span-3 text-center text-muted-foreground p-4"><T>No regional data available.</T></div>
                     ) : (
                         data.regional_temps.map((region: any, index: number) => (

@@ -17,7 +17,7 @@ import { useLanguage, T } from '@/contexts/LanguageContexts';
 type Section = 'profile' | 'appearance' | 'language' | 'notifications' | 'data' | 'security';
 
 interface SettingsState {
-  language: 'en' | 'hi';
+  language: string;
   notifications: boolean;
   autoRefresh: boolean;
   dataSync: boolean;
@@ -52,7 +52,7 @@ const Settings: React.FC = () => {
   };
 
   const handleSaveChanges = () => {
-    setLanguage(draftSettings.language);
+    setLanguage(draftSettings.language as any);
     console.log("Saving settings:", draftSettings);
     setHasUnsavedChanges(false);
   };
@@ -109,7 +109,7 @@ const Settings: React.FC = () => {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div><Label><T>Interface Language</T></Label><p className="text-sm text-muted-foreground"><T>All text will be translated instantly.</T></p></div>
-                <Select value={draftSettings.language} onValueChange={(lang) => handleSettingChange('language', lang as 'en' | 'hi')}>
+                <Select value={draftSettings.language} onValueChange={(lang) => handleSettingChange('language', lang)}>
                   <SelectTrigger className="w-[180px]"><SelectValue placeholder="Language" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="en">English</SelectItem>
