@@ -39,25 +39,36 @@ export const useFloats = () => {
   return useQuery({ queryKey: ['floats'], queryFn: fetchFloats });
 };
 
-// --- Hook for Professional Metrics ---
 export interface MetricsData {
   stats: {
     temperature: { avg: number; min: number; max: number };
     salinity: { avg: number; min: number; max: number };
     pressure: { avg: number; min: number; max: number };
+    // Add the new metrics
+    density: { avg: number; min: number; max: number };
+    speed_of_sound: { avg: number; min: number; max: number };
   };
   timeseries: Array<{
-    timestamp: string; temperature: number; salinity: number; pressure: number;
+    timestamp: string;
+    temperature: number;
+    salinity: number;
+    pressure: number;
+    // Add the new metrics
+    density: number;
+    speed_of_sound: number;
   }>;
 }
+
 const fetchMetricsData = async (): Promise<MetricsData> => {
   const { data, error } = await supabase.rpc('get_metrics_data');
   if (error) throw new Error(error.message);
+
   if (data.timeseries) {
     data.timeseries.reverse();
   }
   return data;
 };
+
 export const useMetricsData = () => {
   return useQuery<MetricsData>({ 
     queryKey: ['metrics_data'], 
@@ -107,5 +118,22 @@ export const useReportData = (
     queryFn: () => fetchReportData(dateRange!, pagination),
     enabled: !!dateRange?.from && !!dateRange?.to,
     keepPreviousData: true,
+  });
+};
+
+const fetchMarineForecast = async (location: { lat: number; lon: number }): Promise<any> => {
+  const { data, error } = await supabase.functions.invoke('get-marine-forecast', {
+    body: { lat: location.lat, lon: location.lon },
+  });
+  if (error) throw new Error(error.message);
+  return data;
+};
+
+export const useMarineForecast = (location: { lat: number; lon: number } | null) => {
+  return useQuery({
+    queryKey: ['marine_forecast', location],
+    queryFn: () => fetchMarineForecast(location!),
+    // Only run the query if a location is selected
+    enabled: !!location,
   });
 };

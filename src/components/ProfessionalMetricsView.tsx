@@ -3,36 +3,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useMetricsData } from '@/lib/dataHooks';
-import { Thermometer, Droplet, Gauge, Loader2 } from 'lucide-react';
-import { T } from '@/contexts/LanguageContexts';
+import { Thermometer, Droplet, Gauge, Loader2, Layers, Signal } from 'lucide-react';
+import { T } from '@/contexts/LanguageContexts'; // Corrected import path
 
-type MetricParameter = 'temperature' | 'salinity' | 'pressure';
+// Add the new metric options to the type
+type MetricParameter = 'temperature' | 'salinity' | 'pressure' | 'density' | 'speed_of_sound';
+
 const ProfessionalMetricsView: React.FC = () => {
   const [selectedParameter, setSelectedParameter] = useState<MetricParameter>('temperature');
   const { data: metricsData, isLoading, error } = useMetricsData();
 
+  // Add configuration for the new parameters
   const parameterConfig = {
-    temperature: {
-      label: 'Temperature',
-      unit: '°C',
-      color: '#06b6d4', // Explicit ocean blue for consistency
-      gradientStopColor: '#0891b2', // Ocean blue for gradient
-      icon: Thermometer
-    },
-    salinity: {
-      label: 'Salinity',
-      unit: 'PSU',
-      color: '#34d399', // A nice green for salinity, or choose another ocean tone
-      gradientStopColor: '#10b981', // Darker green for gradient
-      icon: Droplet
-    },
-    pressure: {
-      label: 'Pressure',
-      unit: 'dbar',
-      color: '#a855f7', // A vibrant purple for pressure
-      gradientStopColor: '#9333ea', // Darker purple for gradient
-      icon: Gauge
-    }
+    temperature: { label: 'Temperature', unit: '°C', color: '#06b6d4', icon: Thermometer },
+    salinity: { label: 'Salinity', unit: 'PSU', color: '#34d399', icon: Droplet },
+    pressure: { label: 'Pressure', unit: 'dbar', color: '#a855f7', icon: Gauge },
+    density: { label: 'Sea Water Density', unit: 'kg/m³', color: '#f59e0b', icon: Layers },
+    speed_of_sound: { label: 'Speed of Sound', unit: 'm/s', color: '#ef4444', icon: Signal },
   };
 
   const currentConfig = parameterConfig[selectedParameter];
@@ -65,7 +52,7 @@ const ProfessionalMetricsView: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="h-full w-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-ocean-primary" />
       </div>
     );
@@ -73,7 +60,7 @@ const ProfessionalMetricsView: React.FC = () => {
 
   if (error) {
     return (
-      <div className="h-full w-full flex items-center justify-center text-destructive">
+      <div className="h-full flex items-center justify-center text-destructive">
         <T>Error loading metrics data</T>
         <p className="text-sm mt-2">{error.message}</p>
       </div>
@@ -83,7 +70,6 @@ const ProfessionalMetricsView: React.FC = () => {
   return (
     <div className="h-full w-full overflow-y-auto p-6 md:p-8 bg-background animate-fade-in-up">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">
             <T>Professional Metrics</T>
@@ -93,93 +79,40 @@ const ProfessionalMetricsView: React.FC = () => {
           </p>
         </div>
 
-        {/* Parameter Selector */}
         <div className="w-64 mb-8">
           <Select value={selectedParameter} onValueChange={(value: MetricParameter) => setSelectedParameter(value)}>
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="temperature">
-                <div className="flex items-center gap-2">
-                  <Thermometer className="h-4 w-4" style={{ color: parameterConfig.temperature.color }} />
-                  <T>Temperature</T>
-                </div>
-              </SelectItem>
-              <SelectItem value="salinity">
-                <div className="flex items-center gap-2">
-                  <Droplet className="h-4 w-4" style={{ color: parameterConfig.salinity.color }} />
-                  <T>Salinity</T>
-                </div>
-              </SelectItem>
-              <SelectItem value="pressure">
-                <div className="flex items-center gap-2">
-                  <Gauge className="h-4 w-4" style={{ color: parameterConfig.pressure.color }} />
-                  <T>Pressure</T>
-                </div>
-              </SelectItem>
+              <SelectItem value="temperature"><div className="flex items-center gap-2"><Thermometer className="h-4 w-4" style={{ color: parameterConfig.temperature.color }} /><T>Temperature</T></div></SelectItem>
+              <SelectItem value="salinity"><div className="flex items-center gap-2"><Droplet className="h-4 w-4" style={{ color: parameterConfig.salinity.color }} /><T>Salinity</T></div></SelectItem>
+              <SelectItem value="pressure"><div className="flex items-center gap-2"><Gauge className="h-4 w-4" style={{ color: parameterConfig.pressure.color }} /><T>Pressure</T></div></SelectItem>
+              <SelectItem value="density"><div className="flex items-center gap-2"><Layers className="h-4 w-4" style={{ color: parameterConfig.density.color }} /><T>Sea Water Density</T></div></SelectItem>
+              <SelectItem value="speed_of_sound"><div className="flex items-center gap-2"><Signal className="h-4 w-4" style={{ color: parameterConfig.speed_of_sound.color }} /><T>Speed of Sound</T></div></SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="card-shadow border-border/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                <T>{`Average ${currentConfig.label}`}</T>
-              </CardTitle>
-              <currentConfig.icon className="h-4 w-4" style={{ color: currentConfig.color }} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" style={{ color: currentConfig.color }}>{formatValue(currentStats?.avg)}</div>
-              <CardDescription>
-                <T>The average value for the selected metric</T>
-              </CardDescription>
-            </CardContent>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium"><T>Average</T> <T>{currentConfig.label}</T></CardTitle><currentConfig.icon className="h-4 w-4" style={{ color: currentConfig.color }} /></CardHeader>
+            <CardContent><div className="text-2xl font-bold" style={{ color: currentConfig.color }}>{formatValue(currentStats?.avg)}</div></CardContent>
           </Card>
-
           <Card className="card-shadow border-border/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                <T>{`Maximum ${currentConfig.label}`}</T>
-              </CardTitle>
-              <currentConfig.icon className="h-4 w-4" style={{ color: currentConfig.color }} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" style={{ color: currentConfig.color }}>{formatValue(currentStats?.max)}</div>
-              <CardDescription>
-                <T>The highest recorded value for the selected metric</T>
-              </CardDescription>
-            </CardContent>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium"><T>Maximum</T> <T>{currentConfig.label}</T></CardTitle><currentConfig.icon className="h-4 w-4" style={{ color: currentConfig.color }} /></CardHeader>
+            <CardContent><div className="text-2xl font-bold" style={{ color: currentConfig.color }}>{formatValue(currentStats?.max)}</div></CardContent>
           </Card>
-
           <Card className="card-shadow border-border/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                <T>{`Minimum ${currentConfig.label}`}</T>
-              </CardTitle>
-              <currentConfig.icon className="h-4 w-4" style={{ color: currentConfig.color }} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" style={{ color: currentConfig.color }}>{formatValue(currentStats?.min)}</div>
-              <CardDescription>
-                <T>The lowest recorded value for the selected metric</T>
-              </CardDescription>
-            </CardContent>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium"><T>Minimum</T> <T>{currentConfig.label}</T></CardTitle><currentConfig.icon className="h-4 w-4" style={{ color: currentConfig.color }} /></CardHeader>
+            <CardContent><div className="text-2xl font-bold" style={{ color: currentConfig.color }}>{formatValue(currentStats?.min)}</div></CardContent>
           </Card>
         </div>
 
-        {/* Time Series Chart */}
         <Card className="col-span-full card-shadow border-border/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <currentConfig.icon className="h-5 w-5" style={{ color: currentConfig.color }} />
-              <T>{`${currentConfig.label} Time Series`}</T>
-            </CardTitle>
-            <CardDescription>
-              <T>Historical data trends over time</T>
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2"><currentConfig.icon className="h-5 w-5" style={{ color: currentConfig.color }} /><T>{currentConfig.label} Time Series</T></CardTitle>
+            <CardDescription><T>Historical data trends over time</T></CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-96">
@@ -187,40 +120,15 @@ const ProfessionalMetricsView: React.FC = () => {
                 <AreaChart data={metricsData?.timeseries || []}>
                   <defs>
                     <linearGradient id={`gradient-${selectedParameter}`} x1="0" y1="0" x2="0" y2="1">
-                      {/* Using currentConfig.gradientStopColor for the gradient */}
-                      <stop offset="5%" stopColor={currentConfig.gradientStopColor} stopOpacity={0.6}/> 
-                      <stop offset="95%" stopColor={currentConfig.gradientStopColor} stopOpacity={0}/>
+                      <stop offset="5%" stopColor={currentConfig.color} stopOpacity={0.6}/>
+                      <stop offset="95%" stopColor={currentConfig.color} stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
-                  <XAxis 
-                    dataKey="timestamp" 
-                    tickFormatter={formatDate}
-                    className="text-muted-foreground"
-                    tickLine={false}
-                    axisLine={false}
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    label={{ 
-                      value: `${currentConfig.label} (${currentConfig.unit})`, 
-                      angle: -90, 
-                      position: 'insideLeft',
-                      style: { textAnchor: 'middle', fill: 'hsl(var(--muted-foreground))' }
-                    }}
-                    className="text-muted-foreground"
-                    tickLine={false}
-                    axisLine={false}
-                    fontSize={12}
-                  />
+                  <XAxis dataKey="timestamp" tickFormatter={formatDate} className="text-muted-foreground" tickLine={false} axisLine={false} fontSize={12} />
+                  <YAxis label={{ value: `${currentConfig.label} (${currentConfig.unit})`, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'hsl(var(--muted-foreground))' } }} className="text-muted-foreground" tickLine={false} axisLine={false} fontSize={12} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area
-                    type="monotone"
-                    dataKey={selectedParameter}
-                    stroke={currentConfig.color}
-                    strokeWidth={2}
-                    fill={`url(#gradient-${selectedParameter})`}
-                  />
+                  <Area type="monotone" dataKey={selectedParameter} stroke={currentConfig.color} strokeWidth={2} fill={`url(#gradient-${selectedParameter})`} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

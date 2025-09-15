@@ -199,3 +199,63 @@
     box-shadow: var(--shadow-glow), 0 0 20px hsl(var(--ocean-primary) / 0.3);
   }
 }
+  /* We only keep the CSS needed for the icons and popups */
+  .leaflet-container {
+    background-color: transparent !important;
+  }
+  .pulsing-icon-container { 
+    --float-color: #00ffff;
+    --float-glow: #00ffff;
+    border: none; 
+    background: none; 
+  }
+  .pulsing-icon .sonar-emitter {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: var(--float-color);
+    border: 1px solid #ffffff;
+    box-shadow: 0 0 8px var(--float-glow), inset 0 0 4px rgba(255,255,255,0.6);
+  }
+  .pulsing-icon .sonar-wave {
+    position: absolute; top: -2px; left: -2px;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    border: 2px solid var(--float-color);
+    opacity: 0;
+    animation: sonar-wave 2.5s infinite;
+    transform-origin: center;
+  }
+  @keyframes sonar-wave {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.5; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+  .leaflet-popup-content-wrapper {
+    background-color: #1a2c38e6;
+    color: #e2e8f0;
+    border: 1px solid #00ffff80;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+  }
+  .leaflet-popup-tip { background-color: #1a2c38; }
+  .leaflet-popup-close-button { color: #e2e8f0 !important; }
+  .highlighted-float .sonar-emitter {
+      animation: highlight-pulse 2s infinite;
+  }
+  @keyframes highlight-pulse {
+      0% { box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff; }
+      50% { box-shadow: 0 0 20px #ffffff, 0 0 30px #ffffff; }
+      100% { box-shadow: 0 0 12px #00ffff, 0 0 20px #00ffff; }
+  }
+  .map-popup h3 {
+    font-size: 16px; font-weight: bold; color: #ffffff;
+    margin: 0 0 8px 0; padding-bottom: 6px;
+    border-bottom: 1px solid #00ffff50;
+  }
+  .map-popup p { margin: 4px 0; }
+  .map-popup strong { color: #00ffff; }
+  .map-popup hr { border: none; border-top: 1px solid #00ffff50; margin: 8px 0; }
