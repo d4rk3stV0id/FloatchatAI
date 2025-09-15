@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, TrendingUp, Activity, Database, Loader2 } from 'lucide-react';
 import { useDashboardAnalytics } from '@/lib/dataHooks';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { T } from '@/contexts/LanguageContexts'; // Import the translation component
 
-const StatCard: React.FC<{ title: string; value: string; icon: React.ElementType }> = ({ title, value, icon: Icon }) => (
+// The 'title' prop is now a ReactNode to allow passing the <T> component
+const StatCard: React.FC<{ title: React.ReactNode; value: string; icon: React.ElementType }> = ({ title, value, icon: Icon }) => (
   <Card className="card-shadow border-ocean-primary/20">
     <CardHeader>
       <CardTitle className="flex items-center gap-2 text-base">
@@ -28,31 +30,31 @@ const AnalyticsView: React.FC = () => {
   }
 
   if (error) {
-    return <div className="h-full w-full flex items-center justify-center text-destructive">Error loading analytics: {error.message}</div>;
+    return <div className="h-full w-full flex items-center justify-center text-destructive"><T>Error loading analytics</T>: {error.message}</div>;
   }
 
   return (
     <div className="h-full w-full overflow-y-auto p-6 animate-fade-in-up">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Data Analytics</h1>
-          <p className="text-muted-foreground">Comprehensive analysis of ARGO float data</p>
+          <h1 className="text-3xl font-bold mb-2"><T>Data Analytics</T></h1>
+          <p className="text-muted-foreground"><T>Comprehensive analysis of ARGO float data</T></p>
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <StatCard
-          title="Avg. Temperature"
+          title={<T>Avg. Temperature</T>}
           value={`${data?.global_avg_temp?.toFixed(2) ?? 'N/A'}°C`}
           icon={BarChart3}
         />
         <StatCard
-          title="Avg. Salinity"
+          title={<T>Avg. Salinity</T>}
           value={`${data?.global_avg_salinity?.toFixed(2) ?? 'N/A'} PSU`}
           icon={TrendingUp}
         />
         <StatCard
-          title="Active Floats"
+          title={<T>Active Floats</T>}
           value={`${data?.active_float_count ?? 'N/A'}`}
           icon={Activity}
         />
@@ -62,7 +64,7 @@ const AnalyticsView: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5 text-ocean-primary" />
-            Temperature Profile by Depth
+            <T>Temperature Profile by Depth</T>
           </CardTitle>
         </CardHeader>
         <CardContent>

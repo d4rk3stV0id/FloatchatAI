@@ -108,9 +108,7 @@
     --shadow-glow: 0 0 40px hsl(var(--ocean-primary) / 0.6);
     --shadow-card: 0 4px 20px -4px hsl(var(--ocean-deep) / 0.3);
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -126,7 +124,28 @@
 }
 
 @layer components {
-  /* Utility Classes */
+  /* --- Google Translate Widget Styles --- */
+  .goog-te-combo {
+    @apply bg-input text-foreground border border-border rounded-radius px-3 py-2 font-sans text-sm cursor-pointer h-10;
+  }
+
+  .goog-logo-link, .goog-te-gadget-simple .goog-logo-link {
+    @apply hidden;
+  }
+
+  .goog-te-gadget-simple {
+    @apply p-0 border-none bg-transparent;
+  }
+
+  /* Hides the Google Translate banner at the top of the page */
+  body > .skiptranslate {
+    @apply hidden;
+  }
+  body {
+    top: 0 !important; /* Resets the body position after the banner is hidden */
+  }
+
+  /* --- Your Custom Utility Classes --- */
   .ocean-gradient {
     background: var(--gradient-ocean);
   }
@@ -155,7 +174,6 @@
     transition: var(--transition-glow);
   }
   
-  /* Interactive Elements */
   .interactive-glow {
     @apply smooth-transition;
   }
@@ -165,13 +183,11 @@
     transform: translateY(-2px);
   }
   
-  /* Globe Container */
   .globe-container {
     background: var(--gradient-glow);
     backdrop-filter: blur(10px);
   }
   
-  /* Ocean Button */
   .ocean-button {
     @apply smooth-transition interactive-glow;
     background: var(--gradient-ocean);
@@ -183,4 +199,3 @@
     box-shadow: var(--shadow-glow), 0 0 20px hsl(var(--ocean-primary) / 0.3);
   }
 }
-

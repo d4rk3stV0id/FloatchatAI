@@ -1,5 +1,3 @@
-// pages/dashboard.tsx
-
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Settings, Menu, User, LogOut, BarChart3, TrendingUp, ChevronRight, ChevronLeft, MapPin } from 'lucide-react';
 import { useFloats } from '@/lib/dataHooks';
+import { T } from '@/contexts/LanguageContexts';
 
 export interface AIAction {
   type: 'MAP_PAN_ZOOM' | 'HIGHLIGHT_FLOAT' | 'SHOW_CHART';
@@ -53,10 +52,10 @@ const Dashboard: React.FC = () => {
         <TooltipTrigger asChild>
           <Button variant="ghost" onClick={() => setActiveView(view)} className={`w-full justify-start gap-4 px-4 ${activeView === view ? 'bg-ocean-primary/20 text-ocean-primary' : ''} ${!isSidebarExpanded ? 'justify-center' : ''}`}>
             <Icon className="h-5 w-5" />
-            {isSidebarExpanded && <span className="text-sm">{label}</span>}
+            {isSidebarExpanded && <span className="text-sm"><T>{label}</T></span>}
           </Button>
         </TooltipTrigger>
-        {!isSidebarExpanded && <TooltipContent side="right">{label}</TooltipContent>}
+        {!isSidebarExpanded && <TooltipContent side="right"><T>{label}</T></TooltipContent>}
       </Tooltip>
     </TooltipProvider>
   );
@@ -67,7 +66,7 @@ const Dashboard: React.FC = () => {
       case 'trends': return <TrendsView />;
       case 'map':
       default:
-        if (isLoading) return <div className="h-full flex items-center justify-center">Loading Map...</div>;
+        if (isLoading) return <div className="h-full flex items-center justify-center"><T>Loading Map...</T></div>;
         if (error) return <div className="h-full flex items-center justify-center text-destructive">Error: {error.message}</div>;
         if (floats) return <MapComponent floats={floats} actions={actions} mapRef={mapRef} />;
         return null;
@@ -75,7 +74,6 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    // THE FIX: Changed min-h-screen to h-screen and added overflow-hidden
     <div className="h-screen bg-background flex overflow-hidden">
        <div className={`
         fixed inset-y-0 left-0 z-50 bg-card/80 backdrop-blur-lg border-r border-border/50 flex flex-col
@@ -92,19 +90,19 @@ const Dashboard: React.FC = () => {
         </div>
         <div className={`flex flex-col gap-2 ${isSidebarExpanded ? 'px-4' : 'px-2 items-center'}`}>
           <TooltipProvider delayDuration={0}><Tooltip>
-            <TooltipTrigger asChild><Button variant="ghost" onClick={() => navigate('/settings')} className={`w-full justify-start gap-4 px-4 ${!isSidebarExpanded ? 'justify-center' : ''}`}><Settings className="h-5 w-5" />{isSidebarExpanded && <span className="text-sm">Settings</span>}</Button></TooltipTrigger>
-            {!isSidebarExpanded && <TooltipContent side="right">Settings</TooltipContent>}
+            <TooltipTrigger asChild><Button variant="ghost" onClick={() => navigate('/settings')} className={`w-full justify-start gap-4 px-4 ${!isSidebarExpanded ? 'justify-center' : ''}`}><Settings className="h-5 w-5" />{isSidebarExpanded && <span className="text-sm"><T>Settings</T></span>}</Button></TooltipTrigger>
+            {!isSidebarExpanded && <TooltipContent side="right"><T>Settings</T></TooltipContent>}
           </Tooltip></TooltipProvider>
           <DropdownMenu>
             <TooltipProvider delayDuration={0}><Tooltip>
-              <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button variant="ghost" className={`w-full justify-start gap-4 px-4 ${!isSidebarExpanded ? 'justify-center' : ''}`}><User className="h-5 w-5" />{isSidebarExpanded && <span className="text-sm">Profile</span>}</Button></DropdownMenuTrigger></TooltipTrigger>
-              {!isSidebarExpanded && <TooltipContent side="right">Profile</TooltipContent>}
+              <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button variant="ghost" className={`w-full justify-start gap-4 px-4 ${!isSidebarExpanded ? 'justify-center' : ''}`}><User className="h-5 w-5" />{isSidebarExpanded && <span className="text-sm"><T>Profile</T></span>}</Button></DropdownMenuTrigger></TooltipTrigger>
+              {!isSidebarExpanded && <TooltipContent side="right"><T>Profile</T></TooltipContent>}
             </Tooltip></TooltipProvider>
-            <DropdownMenuContent side="right" align="start"><DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /> Logout</DropdownMenuItem></DropdownMenuContent>
+            <DropdownMenuContent side="right" align="start"><DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /> <T>Logout</T></DropdownMenuItem></DropdownMenuContent>
           </DropdownMenu>
         </div>
         <div className={`border-t border-border/50 mt-4 p-2 ${isSidebarExpanded ? 'px-4' : 'px-2'}`}>
-           <Button variant="ghost" onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} className="w-full justify-start gap-4 px-4">{isSidebarExpanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}{isSidebarExpanded && <span className="text-sm">Collapse</span>}</Button>
+           <Button variant="ghost" onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} className="w-full justify-start gap-4 px-4">{isSidebarExpanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}{isSidebarExpanded && <span className="text-sm"><T>Collapse</T></span>}</Button>
         </div>
       </div>
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'}`}>
