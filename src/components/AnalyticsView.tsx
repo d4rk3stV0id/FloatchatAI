@@ -1,7 +1,10 @@
+// components/AnalyticsView.tsx
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, TrendingUp, Activity, Database, Loader2 } from 'lucide-react';
-import { useSummaryStats, useActiveFloatCount } from '@/lib/dataHooks';
+import { useDashboardAnalytics } from '@/lib/dataHooks';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const StatCard: React.FC<{ title: string; value: string; icon: React.ElementType }> = ({ title, value, icon: Icon }) => (
   <Card className="card-shadow border-ocean-primary/20">
@@ -18,11 +21,7 @@ const StatCard: React.FC<{ title: string; value: string; icon: React.ElementType
 );
 
 const AnalyticsView: React.FC = () => {
-  const { data: summaryData, isLoading: isLoadingSummary, error: summaryError } = useSummaryStats();
-  const { data: activeCount, isLoading: isLoadingCount, error: countError } = useActiveFloatCount();
-
-  const isLoading = isLoadingSummary || isLoadingCount;
-  const error = summaryError || countError;
+  const { data, isLoading, error } = useDashboardAnalytics();
 
   if (isLoading) {
     return <div className="h-full w-full flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin" /></div>;
@@ -44,17 +43,17 @@ const AnalyticsView: React.FC = () => {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Avg. Temperature"
-          value={`${summaryData?.avg_temp?.toFixed(2) ?? 'N/A'}°C`}
+          value={`${data?.global_avg_temp?.toFixed(2) ?? 'N/A'}°C`}
           icon={BarChart3}
         />
         <StatCard
           title="Avg. Salinity"
-          value={`${summaryData?.avg_salinity?.toFixed(2) ?? 'N/A'} PSU`}
+          value={`${data?.global_avg_salinity?.toFixed(2) ?? 'N/A'} PSU`}
           icon={TrendingUp}
         />
         <StatCard
           title="Active Floats"
-          value={`${activeCount ?? 'N/A'}`}
+          value={`${data?.active_float_count ?? 'N/A'}`}
           icon={Activity}
         />
       </div>
@@ -63,16 +62,30 @@ const AnalyticsView: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5 text-ocean-primary" />
-            Detailed Analytics
+            Temperature Profile by Depth
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64 bg-gradient-to-br from-ocean-deep/10 to-ocean-primary/10 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <Database className="h-16 w-16 text-ocean-primary mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Advanced Analytics Dashboard</h3>
-              <p className="text-muted-foreground">More interactive charts and data tools coming soon.</p>
-            </div>
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data?.depth_profile}
+                margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                <XAxis dataKey="depth_range" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}°C`} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(20, 30, 40, 0.8)',
+                    borderColor: '#00ffff80',
+                    color: '#e2e8f0'
+                  }}
+                  cursor={{ fill: 'rgba(0, 255, 255, 0.1)' }}
+                />
+                <Bar dataKey="avg_temp" fill="#00f2ff" name="Avg. Temperature" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
