@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import CausticAnimation from '@/components/CausticAnimation';
 import { ArrowRight, Waves, Database, BarChart3, MapPin, Mail, Phone, Globe as GlobeIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '@/components/ThemeToggle';
 
 
 const Landing: React.FC = () => {
@@ -330,7 +331,7 @@ const Landing: React.FC = () => {
           <p className="text-muted-foreground">
             © 2025 FloatChat. Making ocean intelligence accessible for all.
           </p>
-        </div>
+        </div> 
       </footer>
     </div>
   );
@@ -344,8 +345,8 @@ const Landing: React.FC = () => {
       const maxScroll = document.body.scrollHeight - window.innerHeight;
       const percent = Math.min(scrollY / maxScroll, 1);
       // Interpolate between light and dark blue
-      const light = [144, 224, 239]; // #90e0ef
-      const dark = [0, 119, 182];   // #0077b6
+      const light = [144, 224, 239]; // #234270ff
+      const dark = [0, 119, 182];   // #17325aff
       const r = Math.round(light[0] + (dark[0] - light[0]) * percent);
       const g = Math.round(light[1] + (dark[1] - light[1]) * percent);
       const b = Math.round(light[2] + (dark[2] - light[2]) * percent);
