@@ -43,6 +43,7 @@ const Landing: React.FC = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
+          <ThemeToggle />
         </div>
       </header>
       <div className="min-h-screen absolute inset-0 w-full h-0 z-full pointer-events-none">
