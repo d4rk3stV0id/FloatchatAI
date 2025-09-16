@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-import ThemeToggle from '@/components/ThemeToggle';
 import CausticAnimation from '@/components/CausticAnimation';
 import { ArrowRight, Waves, Database, BarChart3, MapPin, Mail, Phone, Globe as GlobeIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -22,26 +21,22 @@ const Landing: React.FC = () => {
   };
 
   return (
-  <div className="min-h-screen bg-background text-foreground animate-fade-in relative overflow-hidden">
-    {/* Gradient background behind everything except caustic animation */}
-    <div id="gradient-bg" className="fixed inset-0 w-full h-full -z-10" style={{
-      background: 'linear-gradient(180deg, #90e0ef 0%, #0077b6 100%)',
-      transition: 'background 0.5s',
-    }} />
+  <div className="min-h-screen text-foreground animate-fade-in relative overflow-hidden">
       {/* Header */}
-  <header className="glass-navbar fixed top-0 left-0 right-0 z-50 animate-slide-in">
+  <header className="glass-navbar bg-background fixed top-0 left-0 right-0 z-50 animate-slide-in">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <Waves className="h-6 w-6 text-ocean-primary" />
             <span className="text-xl font-bold">FloatChat</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <a onClick={() => scrollToSection('how')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">How It Works</a>
             <a onClick={() => scrollToSection('features')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Features</a>
+            <a onClick={() => scrollToSection('innovation')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Innovation</a>
             <a onClick={() => scrollToSection('mission')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Mission</a>
             <a onClick={() => scrollToSection('contact')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Contact</a>
           </nav>
           <div className="flex items-center gap-4">
-            <ThemeToggle />
             <Button onClick={() => navigate('/auth')} variant="default" className="hidden sm:flex">
               Launch App
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -49,20 +44,18 @@ const Landing: React.FC = () => {
           </div>
         </div>
       </header>
-      
+      <div className="min-h-screen absolute inset-0 w-full h-0 z-full pointer-events-none">
+          <CausticAnimation />
+      </div>
   {/* Hero Section */}
   <section className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden animate-fade-in-up">
-        {/* Caustic water animation overlays the gradient */}
-        <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-          <CausticAnimation />
-        </div>
         <div className="absolute inset-0 bg-glow-gradient opacity-30" />
         <div className={`container mx-auto px-6 text-center relative z-10 transition-all duration-1000 ${
           isVisible ? 'animate-fade-in-up' : 'opacity-0'
         }`}>
           <div className="max-w-3xl mx-auto space-y-8">
-            <h1 className="text-5xl lg:text-7xl font-bold tracking-tighter gradient-text animate-scale-in">
-              FloatChat: <span className="accent-text">Ocean Data, Simplified</span>
+            <h1 className="text-9xl font-bold tracking-tighter gradient-text animate-scale-in">
+              FloatChat
             </h1>
             <p className="text-2xl lg:text-3xl accent-text font-semibold animate-fade-in">
               Turning complex ocean science into clear, actionable intelligence for everyone.
@@ -86,7 +79,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* How It Works Section */}
-  <section id="how" className="py-24 px-6 bg-white/10 dark:bg-ocean-surface/30 animate-fade-in-up">
+  <section id="how" className="flex items-center justify-center py-24 px-6 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
             <h2 className="section-heading">How It Works</h2>
@@ -112,7 +105,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Features Section */}
-  <section id="features" className="py-24 px-6 animate-fade-in-up">
+  <section id="features" className="flex items-center justify-center py-24 px-6 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="text-center mb-16 animate-fade-in-up">
             <h2 className="section-heading">Why FloatChat?</h2>
@@ -153,7 +146,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Innovation Highlights Section */}
-  <section id="innovation" className="py-24 px-6 bg-white/5 dark:bg-ocean-surface/20 animate-fade-in-up">
+  <section id="innovation" className="flex items-center justify-center py-24 px-6 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
             <h2 className="section-heading">Innovation Highlights</h2>
@@ -162,15 +155,15 @@ const Landing: React.FC = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border glass-navbar">
               <h3 className="text-xl font-semibold mb-4">Data Simplification at Scale</h3>
               <p className="text-muted-foreground">We process and unify scientific data from many sources, making it simple and reliable for any user.</p>
             </Card>
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border glass-navbar">
               <h3 className="text-xl font-semibold mb-4">Predictive Calamity Monitoring</h3>
               <p className="text-muted-foreground">By correlating ARGO and atmospheric data, our AI can spot early signs of cyclones and disasters—days in advance.</p>
             </Card>
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border glass-navbar">
               <h3 className="text-xl font-semibold mb-4">AI as a Smart Router</h3>
               <p className="text-muted-foreground">Gemini 1.5 powers a dynamic UI, calling the right predictive tools for each user’s question—making the experience seamless and powerful.</p>
             </Card>
@@ -179,7 +172,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Mission Section */}
-  <section id="mission" className="py-24 px-6 bg-white/20 dark:bg-ocean-surface/40 animate-fade-in-up">
+  <section id="mission" className="flex items-center justify-center py-24 px-6 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto animate-fade-in-up text-center space-y-8">
             <h2 className="section-heading">Bridging the Gap</h2>
@@ -205,7 +198,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Challenges & Solutions Section */}
-  <section id="challenges" className="py-24 px-6 bg-white/10 dark:bg-ocean-surface/30 animate-fade-in-up">
+  <section id="challenges" className="flex items-center justify-center py-24 px-6 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
             <h2 className="section-heading">Challenges & Solutions</h2>
@@ -231,7 +224,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Contact Section */}
-  <section id="contact" className="py-24 px-6 animate-fade-in-up">
+  <section id="contact" className="min-h-screen flex items-center justify-center py-24 px-6 animate-fade-in-up">
     <div className="container mx-auto">
         <div className="text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tighter mb-6">Meet the Team</h2>
@@ -328,7 +321,7 @@ const Landing: React.FC = () => {
 </section>
 
       {/* Footer */}
-  <footer className="py-12 px-6 border-t border-border/50 bg-white/10 dark:bg-ocean-surface/30 animate-fade-in-up">
+  <footer className="py-12 px-6 border-t border-border/50 bg-white/10 dark:bg-ocean-surface/80 animate-fade-in-up">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Waves className="h-6 w-6 text-ocean-primary" />
