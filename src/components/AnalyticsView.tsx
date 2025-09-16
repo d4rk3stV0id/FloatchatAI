@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Wind, Thermometer, Sunrise, Sunset, Navigation, Sailboat, Waves, Fish, Filter, Flower2, Droplets } from 'lucide-react';
 import { useFloats, useMarineForecast, Float } from '@/lib/dataHooks';
-import { T } from '@/contexts/LanguageContexts';
+import { T } from '@/contexts/LanguageContexts'; // Corrected import path
 import { MapContainer, TileLayer, Marker, Tooltip, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -42,7 +42,16 @@ const MiniMap: React.FC<{ floats: Float[], onSelectFloat: (float: Float) => void
   const landStyle = { fillColor: '#111827', weight: 0.5, color: '#374151', fillOpacity: 1 };
   
   return (
-    <MapContainer center={[10, 80]} zoom={4} style={{ height: '100%', width: '100%', borderRadius: '0.75rem', backgroundColor: '#001f3f' }} scrollWheelZoom={false} zoomControl={false}>
+    <MapContainer 
+      center={[10, 80]} 
+      zoom={4} 
+      style={{ height: '100%', width: '100%', borderRadius: '0.75rem', backgroundColor: '#001f3f' }} 
+      scrollWheelZoom={false} 
+      zoomControl={false}
+      // --- ZOOM FIX IS HERE ---
+      doubleClickZoom={false}
+      dragging={false}
+    >
       {landData && <GeoJSON data={landData} style={landStyle} />}
       {floats?.map(float => {
         const isSelected = float.id === selectedFloatId;

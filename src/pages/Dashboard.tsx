@@ -6,11 +6,11 @@ import AIChatPanel from '@/components/AIChatPanel';
 import AnalyticsView from '@/components/AnalyticsView';
 import TrendsView from '@/components/TrendsView';
 import ProfessionalMetricsView from '@/components/ProfessionalMetricsView';
-import ReportGeneratorView from '@/components/ReportGeneratorView'; // Import the new component
+import ReportGeneratorView from '@/components/ReportGeneratorView';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Settings, Menu, User, LogOut, BarChart3, TrendingUp, ChevronRight, ChevronLeft, MapPin, LayoutDashboard, FileText } from 'lucide-react'; // Add FileText
+import { Settings, Menu, User, LogOut, BarChart3, TrendingUp, ChevronRight, ChevronLeft, MapPin, LayoutDashboard, FileText } from 'lucide-react';
 import { useFloats } from '@/lib/dataHooks';
 import { T } from '@/contexts/LanguageContexts'; // Corrected import path
 
@@ -19,7 +19,6 @@ export interface AIAction {
   payload: any;
 }
 
-// Add 'reports' to the ActiveView type
 type ActiveView = 'map' | 'analytics' | 'trends' | 'metrics' | 'reports';
 
 const Dashboard: React.FC = () => {
@@ -69,7 +68,7 @@ const Dashboard: React.FC = () => {
       case 'analytics': return <AnalyticsView />;
       case 'trends': return <TrendsView />;
       case 'metrics': return <ProfessionalMetricsView />;
-      case 'reports': return <ReportGeneratorView />; // Add the new case
+      case 'reports': return <ReportGeneratorView />;
       case 'map':
       default:
         if (isLoading) return <div className="h-full flex items-center justify-center"><T>Loading Map...</T></div>;
@@ -94,7 +93,7 @@ const Dashboard: React.FC = () => {
           <NavItem icon={BarChart3} label="Analytics" view="analytics" />
           <NavItem icon={TrendingUp} label="Trends" view="trends" />
           <NavItem icon={LayoutDashboard} label="Professional Metrics" view="metrics" />
-          <NavItem icon={FileText} label="Report Generator" view="reports" /> {/* Add the new NavItem */}
+          <NavItem icon={FileText} label="Report Generator" view="reports" />
         </div>
         <div className={`flex flex-col gap-2 ${isSidebarExpanded ? 'px-4' : 'px-2 items-center'}`}>
           <TooltipProvider delayDuration={0}><Tooltip>
@@ -113,7 +112,7 @@ const Dashboard: React.FC = () => {
            <Button variant="ghost" onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} className="w-full justify-start gap-4 px-4">{isSidebarExpanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}{isSidebarExpanded && <span className="text-sm"><T>Collapse</T></span>}</Button>
         </div>
       </div>
-      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'}`}>
+      <div className={`relative z-40 flex-1 flex flex-col transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'}`}>
         <header className="lg:hidden p-4 bg-card/50 backdrop-blur-sm"><Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}><Menu className="h-5 w-5" /></Button></header>
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 h-full min-w-0">{renderActiveView()}</div>
