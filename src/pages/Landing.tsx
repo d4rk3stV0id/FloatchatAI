@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 import ThemeToggle from '@/components/ThemeToggle';
+import CausticAnimation from '@/components/CausticAnimation';
 import { ArrowRight, Waves, Database, BarChart3, MapPin, Mail, Phone, Globe as GlobeIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,7 +22,12 @@ const Landing: React.FC = () => {
   };
 
   return (
-  <div className="min-h-screen bg-background text-foreground animate-fade-in">
+  <div className="min-h-screen bg-background text-foreground animate-fade-in relative overflow-hidden">
+    {/* Gradient background behind everything except caustic animation */}
+    <div id="gradient-bg" className="fixed inset-0 w-full h-full -z-10" style={{
+      background: 'linear-gradient(180deg, #90e0ef 0%, #0077b6 100%)',
+      transition: 'background 0.5s',
+    }} />
       {/* Header */}
   <header className="glass-navbar fixed top-0 left-0 right-0 z-50 animate-slide-in">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
@@ -44,8 +50,12 @@ const Landing: React.FC = () => {
         </div>
       </header>
       
-      {/* Hero Section */}
+  {/* Hero Section */}
   <section className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden animate-fade-in-up">
+        {/* Caustic water animation overlays the gradient */}
+        <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+          <CausticAnimation />
+        </div>
         <div className="absolute inset-0 bg-glow-gradient opacity-30" />
         <div className={`container mx-auto px-6 text-center relative z-10 transition-all duration-1000 ${
           isVisible ? 'animate-fade-in-up' : 'opacity-0'
@@ -60,11 +70,6 @@ const Landing: React.FC = () => {
             <p className="text-lg text-muted-foreground">
               The foundation of ocean science is data—ARGO floats, satellites, and models. But this data is locked away in technical formats, out of reach for most. FloatChat is your universal translator: it cleans, fuses, and simplifies raw data, letting you chat with the ocean and get answers instantly. No expertise required—just curiosity.
             </p>
-            <div className="flex flex-col gap-2 text-base">
-              <span className="accent-text">• Ask about ocean trends, disasters, or climate—get clear, visual answers.</span>
-              <span className="accent-text">• Built for students, scientists, agencies, and anyone who cares about the sea.</span>
-              <span className="accent-text">• Empowering early warnings, research, and public awareness.</span>
-            </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
               <Button 
                 variant="default" 
@@ -81,7 +86,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* How It Works Section */}
-  <section id="how" className="py-24 px-6 bg-card/30 animate-fade-in-up">
+  <section id="how" className="py-24 px-6 bg-white/10 dark:bg-ocean-surface/30 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
             <h2 className="section-heading">How It Works</h2>
@@ -90,15 +95,15 @@ const Landing: React.FC = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 glass-navbar">
               <h3 className="text-xl font-semibold mb-4">1. Data Collection</h3>
               <p className="text-muted-foreground">We fetch the latest ARGO float, satellite, and model data—no matter the format or source.</p>
             </Card>
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 glass-navbar">
               <h3 className="text-xl font-semibold mb-4">2. Smart Processing</h3>
               <p className="text-muted-foreground">Automated scripts clean, structure, and fuse raw data into a unified, easy-to-use format (JSON feeds).</p>
             </Card>
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 glass-navbar">
               <h3 className="text-xl font-semibold mb-4">3. Conversational AI</h3>
               <p className="text-muted-foreground">Our AI lets you ask questions in plain language and get instant, actionable answers—plus visualizations and predictions.</p>
             </Card>
@@ -116,27 +121,27 @@ const Landing: React.FC = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-ocean-gradient rounded-full mb-6">
-                <Database className="h-8 w-8 text-primary-foreground" />
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border glass-navbar">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6">
+                <Database className="h-8 w-8 text-ocean-primary dark:text-ocean-light" />
               </div>
               <h3 className="text-xl font-semibold mb-4">Universal Data Translator</h3>
               <p className="text-muted-foreground">
                 Our pipeline cleans and fuses raw ARGO, satellite, and model data—turning complex files into a single, easy-to-use source of truth.
               </p>
             </Card>
-            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-ocean-gradient rounded-full mb-6">
-                <BarChart3 className="h-8 w-8 text-primary-foreground" />
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border glass-navbar">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6">
+                <BarChart3 className="h-8 w-8 text-ocean-primary dark:text-ocean-light" />
               </div>
               <h3 className="text-xl font-semibold mb-4">AI-Powered Insights</h3>
               <p className="text-muted-foreground">
                 Ask questions in plain language. Our AI finds answers, visualizes trends, and even predicts disasters—no technical skills needed.
               </p>
             </Card>
-            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-ocean-gradient rounded-full mb-6">
-                <MapPin className="h-8 w-8 text-primary-foreground" />
+            <Card className="p-8 text-center hover:lift smooth-transition border-ocean-primary/20 card-shadow card-animated-border glass-navbar">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6">
+                <MapPin className="h-8 w-8 text-ocean-primary dark:text-ocean-light" />
               </div>
               <h3 className="text-xl font-semibold mb-4">Actionable & Inclusive</h3>
               <p className="text-muted-foreground">
@@ -148,7 +153,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Innovation Highlights Section */}
-  <section id="innovation" className="py-24 px-6 bg-card/10 animate-fade-in-up">
+  <section id="innovation" className="py-24 px-6 bg-white/5 dark:bg-ocean-surface/20 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
             <h2 className="section-heading">Innovation Highlights</h2>
@@ -174,7 +179,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Mission Section */}
-  <section id="mission" className="py-24 px-6 bg-card/50 animate-fade-in-up">
+  <section id="mission" className="py-24 px-6 bg-white/20 dark:bg-ocean-surface/40 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto animate-fade-in-up text-center space-y-8">
             <h2 className="section-heading">Bridging the Gap</h2>
@@ -182,15 +187,15 @@ const Landing: React.FC = () => {
               With oceans covering 70% of our planet, FloatChat puts the Indian Ocean at the center—connecting students, scientists, policymakers, and citizens to understand and protect our blue world. Our vision: empower people with the intelligence and warnings they need to stay safe, prepared, and informed.
             </p>
             <div className="grid md:grid-cols-3 gap-8 mt-8">
-              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <h3 className="font-semibold mb-2">Government & Disaster Agencies</h3>
                 <p className="text-muted-foreground">Early warnings to save lives and resources.</p>
               </Card>
-              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <h3 className="font-semibold mb-2">Researchers & Students</h3>
                 <p className="text-muted-foreground">Accelerate climate studies and make oceanography engaging.</p>
               </Card>
-              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+              <Card className="p-6 card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <h3 className="font-semibold mb-2">Industries & NGOs</h3>
                 <p className="text-muted-foreground">Safer fisheries, shipping, and accessible insights for conservation.</p>
               </Card>
@@ -200,7 +205,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Challenges & Solutions Section */}
-  <section id="challenges" className="py-24 px-6 bg-card/30 animate-fade-in-up">
+  <section id="challenges" className="py-24 px-6 bg-white/10 dark:bg-ocean-surface/30 animate-fade-in-up">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up">
             <h2 className="section-heading">Challenges & Solutions</h2>
@@ -209,15 +214,15 @@ const Landing: React.FC = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
               <h3 className="text-xl font-semibold mb-4">Data Complexity</h3>
               <p className="text-muted-foreground">Automated jobs fetch and preprocess ARGO data, updating simplified feeds for easy access.</p>
             </Card>
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
               <h3 className="text-xl font-semibold mb-4">API Rate Limits</h3>
               <p className="text-muted-foreground">A backend cache (Redis/Postgres) stores responses, so repeated requests don’t overload APIs.</p>
             </Card>
-            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
+            <Card className="p-8 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
               <h3 className="text-xl font-semibold mb-4">UI/Map Performance</h3>
               <p className="text-muted-foreground">We use clustering (supercluster) to group floats, keeping the map fast and smooth—even with thousands of points.</p>
             </Card>
@@ -227,35 +232,103 @@ const Landing: React.FC = () => {
 
       {/* Contact Section */}
   <section id="contact" className="py-24 px-6 animate-fade-in-up">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold tracking-tighter mb-6">Get in Touch</h2>
+    <div className="container mx-auto">
+        <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold tracking-tighter mb-6">Meet the Team</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Have questions, ideas, or want to collaborate? Reach out and join our mission to make ocean data work for everyone.
+                Our team is committed to making ocean data accessible. Say hello to the faces behind FloatChat.
             </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
-              <Mail className="h-8 w-8 text-ocean-primary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Email</h3>
-              <a href="mailto:contact@floatchat.com" className="text-muted-foreground hover:text-ocean-primary">contact@floatchat.com</a>
-            </Card>
-            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
-              <Phone className="h-8 w-8 text-ocean-primary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Phone</h3>
-              <p className="text-muted-foreground">+91 80 1234 5678</p>
-            </Card>
-            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border">
-              <GlobeIcon className="h-8 w-8 text-ocean-primary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Website</h3>
-              <p className="text-muted-foreground">www.floatchat.com</p>
-            </Card>
-          </div>
         </div>
-      </section>
+        <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {/* Card 1: Placeholder Team Member */}
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
+                <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
+                    <img src="https://via.placeholder.com/96" alt="Profile Picture" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-semibold mb-1">Jane Doe</h3>
+                <p className="text-sm text-muted-foreground mb-4">Lead Developer</p>
+                <div className="flex justify-center gap-2">
+                    <a href="#" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="GitHub Profile"><GlobeIcon size={20} /></a>
+                    <a href="mailto:jane.doe@example.com" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Email"><Mail size={20} /></a>
+                    <a href="tel:+1234567890" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Phone"><Phone size={20} /></a>
+                </div>
+            </Card>
+
+            {/* Card 2: Placeholder Team Member */}
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
+                <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
+                    <img src="https://via.placeholder.com/96" alt="Profile Picture" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-semibold mb-1">John Smith</h3>
+                <p className="text-sm text-muted-foreground mb-4">Data Scientist</p>
+                <div className="flex justify-center gap-2">
+                    <a href="#" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="GitHub Profile"><GlobeIcon size={20} /></a>
+                    <a href="mailto:john.smith@example.com" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Email"><Mail size={20} /></a>
+                    <a href="tel:+1234567891" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Phone"><Phone size={20} /></a>
+                </div>
+            </Card>
+
+            {/* Card 3: Placeholder Team Member */}
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
+                <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
+                    <img src="https://via.placeholder.com/96" alt="Profile Picture" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-semibold mb-1">Emily Chen</h3>
+                <p className="text-sm text-muted-foreground mb-4">UI/UX Designer</p>
+                <div className="flex justify-center gap-2">
+                    <a href="#" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="GitHub Profile"><GlobeIcon size={20} /></a>
+                    <a href="mailto:emily.chen@example.com" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Email"><Mail size={20} /></a>
+                    <a href="tel:+1234567892" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Phone"><Phone size={20} /></a>
+                </div>
+            </Card>
+
+            {/* Card 4: Placeholder Team Member */}
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
+                <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
+                    <img src="https://via.placeholder.com/96" alt="Profile Picture" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-semibold mb-1">Michael Rodriguez</h3>
+                <p className="text-sm text-muted-foreground mb-4">Project Manager</p>
+                <div className="flex justify-center gap-2">
+                    <a href="#" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="GitHub Profile"><GlobeIcon size={20} /></a>
+                    <a href="mailto:michael.rodriguez@example.com" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Email"><Mail size={20} /></a>
+                    <a href="tel:+1234567893" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Phone"><Phone size={20} /></a>
+                </div>
+            </Card>
+
+            {/* Card 5: Placeholder Team Member */}
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
+                <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
+                    <img src="https://via.placeholder.com/96" alt="Profile Picture" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-semibold mb-1">Sarah Lee</h3>
+                <p className="text-sm text-muted-foreground mb-4">DevOps Engineer</p>
+                <div className="flex justify-center gap-2">
+                    <a href="#" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="GitHub Profile"><GlobeIcon size={20} /></a>
+                    <a href="mailto:sarah.lee@example.com" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Email"><Mail size={20} /></a>
+                    <a href="tel:+1234567894" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Phone"><Phone size={20} /></a>
+                </div>
+            </Card>
+
+            {/* Card 6: Placeholder Team Member */}
+            <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
+                <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
+                    <img src="https://via.placeholder.com/96" alt="Profile Picture" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-semibold mb-1">David Wilson</h3>
+                <p className="text-sm text-muted-foreground mb-4">Marketing & Outreach</p>
+                <div className="flex justify-center gap-2">
+                    <a href="#" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="GitHub Profile"><GlobeIcon size={20} /></a>
+                    <a href="mailto:david.wilson@example.com" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Email"><Mail size={20} /></a>
+                    <a href="tel:+1234567895" className="text-muted-foreground hover:text-ocean-primary smooth-transition" aria-label="Phone"><Phone size={20} /></a>
+                </div>
+            </Card>
+        </div>
+    </div>
+</section>
 
       {/* Footer */}
-  <footer className="py-12 px-6 border-t border-border/50 bg-card/20 animate-fade-in-up">
+  <footer className="py-12 px-6 border-t border-border/50 bg-white/10 dark:bg-ocean-surface/30 animate-fade-in-up">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Waves className="h-6 w-6 text-ocean-primary" />
@@ -268,6 +341,26 @@ const Landing: React.FC = () => {
       </footer>
     </div>
   );
+
+  // Animate gradient background on scroll
+  useEffect(() => {
+    const gradientBg = document.getElementById('gradient-bg');
+    if (!gradientBg) return;
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const percent = Math.min(scrollY / maxScroll, 1);
+      // Interpolate between light and dark blue
+      const light = [144, 224, 239]; // #90e0ef
+      const dark = [0, 119, 182];   // #0077b6
+      const r = Math.round(light[0] + (dark[0] - light[0]) * percent);
+      const g = Math.round(light[1] + (dark[1] - light[1]) * percent);
+      const b = Math.round(light[2] + (dark[2] - light[2]) * percent);
+      gradientBg.style.background = `linear-gradient(180deg, rgb(${r},${g},${b}) 0%, #0077b6 100%)`;
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 };
 
 export default Landing;
