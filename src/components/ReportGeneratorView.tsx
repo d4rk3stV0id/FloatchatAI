@@ -1,11 +1,9 @@
-// src/components/ReportGeneratorView.tsx
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useReportData, ReportData, PaginatedReportResponse } from '@/lib/dataHooks';
+import { useReportData, ReportData } from '@/lib/dataHooks';
 import { T } from '@/contexts/LanguageContexts';
 import { Download, ChevronDown, ArrowUpDown, Loader2, Search } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
@@ -24,25 +22,19 @@ import {
 import { DatePickerWithRange } from '@/components/DatePickerWithRange';
 
 const ReportGeneratorView: React.FC = () => {
-  // State for the date picker UI
   const [date, setDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -90),
     to: new Date(),
   });
-
-  // This state is what the data hook will actually use to fetch data
   const [appliedDate, setAppliedDate] = useState<DateRange | undefined>(undefined);
-
-  // State for the table
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 15, // Show 15 rows per page
+    pageSize: 15,
   });
 
-  // The data fetching hook
-  const { data: paginatedData, isFetching, error } = useReportData(appliedDate, { pageIndex, pageSize });
+  const { data: paginatedData, isFetching } = useReportData(appliedDate, { pageIndex, pageSize });
 
   const reportData = useMemo(() => paginatedData?.data ?? [], [paginatedData]);
   const totalCount = useMemo(() => paginatedData?.total_count ?? 0, [paginatedData]);
@@ -79,15 +71,41 @@ const ReportGeneratorView: React.FC = () => {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    manualSorting: false, // Client-side sorting is fine for small pages
+    manualSorting: false,
   });
   
   const handleApplyFilters = () => {
-    setPagination(p => ({ ...p, pageIndex: 0 })); // Reset to first page
-    setAppliedDate(date); // Set the date to trigger the fetch
+    setPagination(p => ({ ...p, pageIndex: 0 }));
+    setAppliedDate(date);
   };
 
-  const handleDownload = () => { /* Download logic remains the same */ };
+  // --- DOWNLOAD CSV LOGIC IS NOW IMPLEMENTED ---
+  const handleDownload = () => {
+    // Get headers from the visible columns
+    const headers = table.getVisibleLeafColumns().map(col => col.id).join(',');
+
+    // Get data from the currently visible rows on the current page
+    const rows = table.getRowModel().rows.map(row => 
+      row.getVisibleCells().map(cell => {
+        const value = cell.getValue();
+        // Handle potential commas in string values by wrapping them in quotes
+        return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
+      }).join(',')
+    ).join('\n');
+    
+    // Combine headers and rows to form the CSV content
+    const csvContent = `${headers}\n${rows}`;
+
+    // Create a Blob and trigger a browser download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `floatchat_report_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="h-full w-full overflow-y-auto p-6 md:p-8 bg-background animate-fade-in-up">
@@ -136,8 +154,8 @@ const ReportGeneratorView: React.FC = () => {
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
               <span className="text-sm text-muted-foreground"><T>Page</T> {pageIndex + 1} of {pageCount}</span>
-              <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>Previous</Button>
-              <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>Next</Button>
+              <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}><T>Previous</T></Button>
+              <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}><T>Next</T></Button>
             </div>
           </CardContent>
         </Card>
