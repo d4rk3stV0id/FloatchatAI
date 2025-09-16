@@ -1,5 +1,3 @@
-// pages/Settings.tsx
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -80,13 +78,13 @@ const Settings: React.FC = () => {
         return (
           <Card className="card-shadow border-border/20">
             <CardHeader><CardTitle><T>Profile Settings</T></CardTitle><CardDescription><T>Update your personal information.</T></CardDescription></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div><Label htmlFor="firstName"><T>First Name</T></Label><Input id="firstName" value={draftSettings.firstName} onChange={e => handleSettingChange('firstName', e.target.value)} /></div>
-                <div><Label htmlFor="lastName"><T>Last Name</T></Label><Input id="lastName" value={draftSettings.lastName} onChange={e => handleSettingChange('lastName', e.target.value)} /></div>
+            <CardContent className="space-y-6 pt-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2"><Label htmlFor="firstName"><T>First Name</T></Label><Input id="firstName" value={draftSettings.firstName} onChange={e => handleSettingChange('firstName', e.target.value)} /></div>
+                <div className="space-y-2"><Label htmlFor="lastName"><T>Last Name</T></Label><Input id="lastName" value={draftSettings.lastName} onChange={e => handleSettingChange('lastName', e.target.value)} /></div>
               </div>
-              <div><Label htmlFor="email"><T>Email</T></Label><Input id="email" type="email" defaultValue="researcher@floatchat.com" disabled /></div>
-              <div><Label htmlFor="organization"><T>Organization</T></Label><Input id="organization" value={draftSettings.organization} onChange={e => handleSettingChange('organization', e.target.value)} /></div>
+              <div className="space-y-2"><Label htmlFor="email"><T>Email</T></Label><Input id="email" type="email" defaultValue="researcher@floatchat.com" disabled /></div>
+              <div className="space-y-2"><Label htmlFor="organization"><T>Organization</T></Label><Input id="organization" value={draftSettings.organization} onChange={e => handleSettingChange('organization', e.target.value)} /></div>
             </CardContent>
           </Card>
         );
@@ -94,10 +92,11 @@ const Settings: React.FC = () => {
         return (
           <Card className="card-shadow border-border/20">
             <CardHeader><CardTitle><T>Appearance</T></CardTitle><CardDescription><T>Customize the look and feel of the application.</T></CardDescription></CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div><Label htmlFor="theme"><T>Interface Theme</T></Label><p className="text-sm text-muted-foreground"><T>Select your preferred light or dark mode.</T></p></div>
-                <ThemeToggle />
+                <div><Label className="font-semibold"><T>Interface Theme</T></Label><p className="text-sm text-muted-foreground"><T>Select your preferred light or dark mode.</T></p></div>
+                {/* --- UI TWEAK: Wrapped the toggle for better visibility --- */}
+                <div className="p-1 border rounded-md"><ThemeToggle /></div>
               </div>
             </CardContent>
           </Card>
@@ -106,28 +105,21 @@ const Settings: React.FC = () => {
         return (
           <Card className="card-shadow border-border/20">
             <CardHeader><CardTitle><T>Language & Region</T></CardTitle><CardDescription><T>Choose the language and region for your interface.</T></CardDescription></CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-6">
               <div className="flex items-center justify-between">
-                <div><Label><T>Interface Language</T></Label><p className="text-sm text-muted-foreground"><T>All text will be translated instantly.</T></p></div>
+                <div><Label className="font-semibold"><T>Interface Language</T></Label><p className="text-sm text-muted-foreground"><T>All text will be translated instantly.</T></p></div>
                 <Select value={draftSettings.language} onValueChange={(lang) => handleSettingChange('language', lang)}>
                   <SelectTrigger className="w-[180px]"><SelectValue placeholder="Language" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="hi">हिन्दी (Hindi)</SelectItem>
-                    <SelectItem value="kn">ಕನ್ನಡ (Kannada)</SelectItem>
-                    <SelectItem value="ta">தமிழ் (Tamil)</SelectItem>
-                    <SelectItem value="te">తెలుగు (Telugu)</SelectItem>
-                    <SelectItem value="ml">മലയാളം (Malayalam)</SelectItem>
-                    <SelectItem value="mr">मराठी (Marathi)</SelectItem>
-                    <SelectItem value="bn">বাংলা (Bengali)</SelectItem>
-                    <SelectItem value="ur">اردو (Urdu)</SelectItem>
-                    <SelectItem value="fr">Français (French)</SelectItem>
-                    <SelectItem value="de">Deutsch (German)</SelectItem>
-                    </SelectContent>
+                    <SelectItem value="en">English</SelectItem><SelectItem value="hi">हिन्दी (Hindi)</SelectItem><SelectItem value="kn">ಕನ್ನಡ (Kannada)</SelectItem>
+                    <SelectItem value="ta">தமிழ் (Tamil)</SelectItem><SelectItem value="te">తెలుగు (Telugu)</SelectItem><SelectItem value="ml">മലയാളം (Malayalam)</SelectItem>
+                    <SelectItem value="mr">मराठी (Marathi)</SelectItem><SelectItem value="bn">বাংলা (Bengali)</SelectItem><SelectItem value="ur">اردو (Urdu)</SelectItem>
+                    <SelectItem value="fr">Français (French)</SelectItem><SelectItem value="de">Deutsch (German)</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <Separator/>
-              <div><Label htmlFor="region"><T>Default Region</T></Label><p className="text-sm text-muted-foreground mb-2"><T>Set the default region for map and data views.</T></p><Input id="region" value={draftSettings.defaultRegion} onChange={e => handleSettingChange('defaultRegion', e.target.value)} /></div>
+              <div className="space-y-2"><Label htmlFor="region" className="font-semibold"><T>Default Region</T></Label><p className="text-sm text-muted-foreground"><T>Set the default region for map and data views.</T></p><Input id="region" value={draftSettings.defaultRegion} onChange={e => handleSettingChange('defaultRegion', e.target.value)} /></div>
             </CardContent>
           </Card>
         );
@@ -135,15 +127,15 @@ const Settings: React.FC = () => {
         return (
           <Card className="card-shadow border-border/20">
             <CardHeader><CardTitle><T>Notification Settings</T></CardTitle></CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6 pt-6">
               <div className="flex items-center justify-between">
-                <div><Label htmlFor="notifications"><T>Email Notifications</T></Label><p className="text-sm text-muted-foreground"><T>Receive updates about new data and alerts.</T></p></div>
-                <Switch id="notifications" checked={draftSettings.notifications} onCheckedChange={(checked) => handleSettingChange('notifications', checked)} />
+                <div><Label htmlFor="notifications" className="font-semibold"><T>Email Notifications</T></Label><p className="text-sm text-muted-foreground"><T>Receive updates about new data and alerts.</T></p></div>
+                <Switch id="notifications" checked={draftSettings.notifications} onCheckedChange={(checked) => handleSettingChange('notifications', checked)} className="data-[state=checked]:bg-primary" />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <div><Label htmlFor="autoRefresh"><T>Auto Refresh Data</T></Label><p className="text-sm text-muted-foreground"><T>Automatically refresh map data every 15 minutes.</T></p></div>
-                <Switch id="autoRefresh" checked={draftSettings.autoRefresh} onCheckedChange={(checked) => handleSettingChange('autoRefresh', checked)} />
+                <div><Label htmlFor="autoRefresh" className="font-semibold"><T>Auto Refresh Data</T></Label><p className="text-sm text-muted-foreground"><T>Automatically refresh map data every 15 minutes.</T></p></div>
+                <Switch id="autoRefresh" checked={draftSettings.autoRefresh} onCheckedChange={(checked) => handleSettingChange('autoRefresh', checked)} className="data-[state=checked]:bg-primary" />
               </div>
             </CardContent>
           </Card>
@@ -152,10 +144,10 @@ const Settings: React.FC = () => {
         return (
           <Card className="card-shadow border-border/20">
             <CardHeader><CardTitle><T>Data Preferences</T></CardTitle></CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               <div className="flex items-center justify-between">
-                <div><Label htmlFor="dataSync"><T>Offline Data Sync</T></Label><p className="text-sm text-muted-foreground"><T>Download key data for offline analysis.</T></p></div>
-                <Switch id="dataSync" checked={draftSettings.dataSync} onCheckedChange={(checked) => handleSettingChange('dataSync', checked)} />
+                <div><Label htmlFor="dataSync" className="font-semibold"><T>Offline Data Sync</T></Label><p className="text-sm text-muted-foreground"><T>Download key data for offline analysis.</T></p></div>
+                <Switch id="dataSync" checked={draftSettings.dataSync} onCheckedChange={(checked) => handleSettingChange('dataSync', checked)} className="data-[state=checked]:bg-primary" />
               </div>
             </CardContent>
           </Card>
@@ -164,18 +156,18 @@ const Settings: React.FC = () => {
         return (
           <Card className="card-shadow border-border/20">
             <CardHeader><CardTitle><T>Security</T></CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full sm:w-auto"><T>Change Password</T></Button>
+            <CardContent className="space-y-6 pt-6">
+              <div className="space-y-2"><Label><T>Password</T></Label><Button variant="outline" className="w-full sm:w-auto"><T>Change Password</T></Button></div>
               <Separator />
-              <div className="flex flex-col sm:flex-row items-center justify-between rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-                <div><h4 className="font-semibold text-destructive"><T>Delete Account</T></h4><p className="text-xs text-destructive/80 mt-1"><T>This action is permanent and cannot be undone.</T></p></div>
-                <Button variant="destructive" size="sm" className="mt-4 sm:mt-0"><T>Delete My Account</T></Button>
+              <div className="space-y-2 rounded-lg border border-destructive/50 p-4">
+                <h4 className="font-semibold text-destructive"><T>Delete Account</T></h4>
+                <p className="text-sm text-destructive/80"><T>This action is permanent and cannot be undone.</T></p>
+                <div className="pt-2"><Button variant="destructive" size="sm"><T>Delete My Account</T></Button></div>
               </div>
             </CardContent>
           </Card>
         );
-      default:
-        return null;
+      default: return null;
     }
   };
 
@@ -183,18 +175,18 @@ const Settings: React.FC = () => {
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto p-4 md:p-6 lg:p-8">
         <div className="flex items-center mb-8">
-            <Button onClick={handleBackNavigation} variant="outline" size="icon" className="mr-4">
-                <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-                <h1 className="text-3xl font-bold"><T>Settings</T></h1>
-                <p className="text-muted-foreground"><T>Manage your account and application preferences</T></p>
-            </div>
+            <Button onClick={handleBackNavigation} variant="outline" size="icon" className="mr-4"><ArrowLeft className="h-4 w-4" /></Button>
+            <div><h1 className="text-3xl font-bold"><T>Settings</T></h1><p className="text-muted-foreground"><T>Manage your account and application preferences</T></p></div>
         </div>
         <div className="grid lg:grid-cols-[250px_1fr] gap-8">
           <nav className="flex flex-col gap-2">
             {navItems.map(item => (
-              <Button key={item.id} variant={activeSection === item.id ? 'secondary' : 'ghost'} onClick={() => setActiveSection(item.id as Section)} className="w-full justify-start gap-3">
+              <Button key={item.id} 
+                // --- UI TWEAK: Removed orange 'secondary' variant for a cleaner look ---
+                variant={'ghost'} 
+                onClick={() => setActiveSection(item.id as Section)} 
+                className={`w-full justify-start gap-3 h-10 ${activeSection === item.id ? 'bg-muted text-primary font-semibold' : ''}`}
+              >
                 <item.icon className="h-4 w-4" />
                 <T>{item.label}</T>
               </Button>
@@ -203,7 +195,7 @@ const Settings: React.FC = () => {
           <div className="space-y-6">
             {renderSection()}
             <div className="flex justify-end pt-4">
-                <Button size="lg" onClick={handleSaveChanges} disabled={!hasUnsavedChanges}>
+                <Button size="lg" onClick={handleSaveChanges} disabled={!hasUnsavedChanges} className="bg-primary hover:bg-primary/90">
                     <T>Save Changes</T>
                 </Button>
             </div>
@@ -213,14 +205,8 @@ const Settings: React.FC = () => {
       
       <AlertDialog open={showExitWarning} onOpenChange={setShowExitWarning}>
         <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle><T>Unsaved Changes</T></AlertDialogTitle>
-            <AlertDialogDescription><T>You have unsaved changes. Are you sure you want to leave?</T></AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel><T>Cancel</T></AlertDialogCancel>
-            <AlertDialogAction onClick={() => navigate('/dashboard')}><T>Leave</T></AlertDialogAction>
-          </AlertDialogFooter>
+          <AlertDialogHeader><AlertDialogTitle><T>Unsaved Changes</T></AlertDialogTitle><AlertDialogDescription><T>You have unsaved changes. Are you sure you want to leave?</T></AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter><AlertDialogCancel><T>Cancel</T></AlertDialogCancel><AlertDialogAction onClick={() => navigate('/dashboard')}><T>Leave</T></AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
