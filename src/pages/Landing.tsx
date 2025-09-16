@@ -122,7 +122,7 @@ const Landing: React.FC = () => {
               className="relative"
             >
               <motion.h1 
-                className="text-9xl font-bold tracking-tighter bg-gradient-to-r from-ocean-primary via-ocean-secondary to-ocean-accent bg-clip-text text-transparent"
+                className="text-9xl font-bold tracking-tighter bg-gradient-to-r from-blue-900 via-blue-600 to-cyan-400 bg-clip-text text-transparent"
                 animate={{ 
                   backgroundPosition: ["0%", "100%", "0%"] 
                 }}
