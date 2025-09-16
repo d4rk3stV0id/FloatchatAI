@@ -111,7 +111,10 @@ const ProfessionalMetricsView: React.FC = () => {
 
         <Card className="col-span-full card-shadow border-border/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><currentConfig.icon className="h-5 w-5" style={{ color: currentConfig.color }} /><T>{currentConfig.label} Time Series</T></CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <currentConfig.icon className="h-5 w-5" style={{ color: currentConfig.color }} />
+              <T>{`${currentConfig.label} Time Series`}</T>
+            </CardTitle>
             <CardDescription><T>Historical data trends over time</T></CardDescription>
           </CardHeader>
           <CardContent>

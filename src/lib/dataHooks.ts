@@ -64,10 +64,11 @@ const fetchMetricsData = async (): Promise<MetricsData> => {
   const { data, error } = await supabase.rpc('get_metrics_data');
   if (error) throw new Error(error.message);
 
-  if (data.timeseries) {
-    data.timeseries.reverse();
+  const typedData = data as MetricsData;
+  if (typedData && typedData.timeseries) {
+    typedData.timeseries.reverse();
   }
-  return data;
+  return typedData;
 };
 
 export const useMetricsData = () => {
@@ -100,7 +101,7 @@ const fetchReportData = async (
     return { data: [], total_count: 0 };
   }
   
-  const { data, error } = await supabase.rpc('get_report_data', {
+  const { data, error } = await (supabase.rpc as any)('get_report_data', {
     start_date: dateRange.from.toISOString(),
     end_date: dateRange.to.toISOString(),
     page_index: pagination.pageIndex,
@@ -118,7 +119,7 @@ export const useReportData = (
     queryKey: ['report_data', dateRange, pagination],
     queryFn: () => fetchReportData(dateRange!, pagination),
     enabled: !!dateRange?.from && !!dateRange?.to,
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 };
 

@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 import CausticAnimation from '@/components/CausticAnimation';
-import { ArrowRight, Waves, Database, BarChart3, MapPin, Mail, Phone, Globe as GlobeIcon } from 'lucide-react';
+import InteractiveCursor from '@/components/InteractiveCursor';
+import FloatingParticles from '@/components/FloatingParticles';
+import ScrollReveal from '@/components/ScrollReveal';
+import { ArrowRight, Waves, Database, BarChart3, MapPin, Mail, Phone, Globe as GlobeIcon, Sparkles, Zap, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -11,6 +15,9 @@ import ThemeToggle from '@/components/ThemeToggle';
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   useEffect(() => {
     setIsVisible(true);
@@ -22,62 +29,180 @@ const Landing: React.FC = () => {
   };
 
   return (
-  <div className="min-h-screen text-foreground animate-fade-in relative overflow-hidden">
+  <div className="min-h-screen text-foreground relative overflow-hidden">
+      <InteractiveCursor />
+      <FloatingParticles />
+      
       {/* Header */}
-  <header className="glass-navbar bg-background fixed top-0 left-0 right-0 z-50 animate-slide-in">
+  <motion.header 
+        className="glass-navbar bg-background/80 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 border-b border-border/20"
+        style={{ opacity: headerOpacity }}
+      >
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <Waves className="h-6 w-6 text-ocean-primary" />
-            <span className="text-xl font-bold">FloatChat</span>
-          </div>
+          <motion.div 
+            className="flex items-center gap-2 cursor-pointer interactive" 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              <Waves className="h-6 w-6 text-ocean-primary" />
+            </motion.div>
+            <span className="text-xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+              FloatChat
+            </span>
+          </motion.div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <a onClick={() => scrollToSection('how')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">How It Works</a>
-            <a onClick={() => scrollToSection('features')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Features</a>
-            <a onClick={() => scrollToSection('innovation')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Innovation</a>
-            <a onClick={() => scrollToSection('mission')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Mission</a>
-            <a onClick={() => scrollToSection('contact')} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Contact</a>
+            {[
+              { label: 'How It Works', section: 'how' },
+              { label: 'Features', section: 'features' },
+              { label: 'Innovation', section: 'innovation' },
+              { label: 'Mission', section: 'mission' },
+              { label: 'Contact', section: 'contact' }
+            ].map((item, index) => (
+              <motion.a
+                key={item.section}
+                onClick={() => scrollToSection(item.section)} 
+                className="text-muted-foreground hover:text-ocean-primary transition-colors cursor-pointer interactive relative"
+                whileHover={{ y: -2 }}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                {item.label}
+                <motion.div
+                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-ocean-primary"
+                  whileHover={{ width: "100%" }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.a>
+            ))}
           </nav>
           <div className="flex items-center gap-4">
-            <Button onClick={() => navigate('/auth')} variant="default" className="hidden sm:flex">
-              Launch App
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button 
+                onClick={() => navigate('/auth')} 
+                variant="default" 
+                className="hidden sm:flex interactive ocean-button border-ocean-primary/30 hover:border-ocean-primary hover:shadow-glow"
+              >
+                Launch App
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </motion.div>
+              </Button>
+            </motion.div>
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
         </div>
-      </header>
+      </motion.header>
       <div className="min-h-screen absolute inset-0 w-full h-0 z-full pointer-events-none">
           <CausticAnimation />
       </div>
   {/* Hero Section */}
-  <section className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden animate-fade-in-up">
+  <section className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-glow-gradient opacity-30" />
-        <div className={`container mx-auto px-6 text-center relative z-10 transition-all duration-1000 ${
-          isVisible ? 'animate-fade-in-up' : 'opacity-0'
-        }`}>
+        <motion.div 
+          className="container mx-auto px-6 text-center relative z-10"
+          style={{ y: heroY }}
+        >
           <div className="max-w-3xl mx-auto space-y-8">
-            <h1 className="text-9xl font-bold tracking-tighter gradient-text animate-scale-in">
-              FloatChat
-            </h1>
-            <p className="text-2xl lg:text-3xl accent-text font-semibold animate-fade-in">
-              Turning complex ocean science into clear, actionable intelligence for everyone.
-            </p>
-            <p className="text-lg text-muted-foreground">
-              The foundation of ocean science is data—ARGO floats, satellites, and models. But this data is locked away in technical formats, out of reach for most. FloatChat is your universal translator: it cleans, fuses, and simplifies raw data, letting you chat with the ocean and get answers instantly. No expertise required—just curiosity.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-              <Button 
-                variant="default" 
-                size="xl"
-                onClick={() => navigate('/auth')}
-                className="group hover:pop smooth-transition accent-text"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, type: "spring", bounce: 0.3 }}
+              className="relative"
+            >
+              <motion.h1 
+                className="text-9xl font-bold tracking-tighter bg-gradient-to-r from-ocean-primary via-ocean-secondary to-ocean-accent bg-clip-text text-transparent"
+                animate={{ 
+                  backgroundPosition: ["0%", "100%", "0%"] 
+                }}
+                transition={{ 
+                  duration: 5, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
               >
-                Try FloatChat
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
+                FloatChat
+              </motion.h1>
+              <motion.div
+                className="absolute inset-0 bg-glow-gradient opacity-20 blur-3xl"
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  opacity: [0.2, 0.4, 0.2]
+                }}
+                transition={{ 
+                  duration: 4, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+              />
+            </motion.div>
+            
+            <motion.p 
+              className="text-2xl lg:text-3xl font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            >
+              Turning complex ocean science into clear, actionable intelligence for everyone.
+            </motion.p>
+            
+            <motion.p 
+              className="text-lg text-muted-foreground leading-relaxed"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              The foundation of ocean science is data—ARGO floats, satellites, and models. But this data is locked away in technical formats, out of reach for most. FloatChat is your universal translator: it cleans, fuses, and simplifies raw data, letting you chat with the ocean and get answers instantly. No expertise required—just curiosity.
+            </motion.p>
+            
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center mt-6"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.05, y: -5 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative group"
+              >
+                <Button 
+                  variant="default" 
+                  size="xl"
+                  onClick={() => navigate('/auth')}
+                  className="interactive ocean-button relative overflow-hidden group"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.6 }}
+                  />
+                  <span className="relative z-10 flex items-center">
+                    Try FloatChat
+                    <motion.div
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </motion.div>
+                  </span>
+                </Button>
+              </motion.div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* How It Works Section */}

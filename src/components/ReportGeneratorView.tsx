@@ -36,8 +36,8 @@ const ReportGeneratorView: React.FC = () => {
 
   const { data: paginatedData, isFetching } = useReportData(appliedDate, { pageIndex, pageSize });
 
-  const reportData = useMemo(() => paginatedData?.data ?? [], [paginatedData]);
-  const totalCount = useMemo(() => paginatedData?.total_count ?? 0, [paginatedData]);
+  const reportData = useMemo(() => (paginatedData as any)?.data ?? [], [paginatedData]);
+  const totalCount = useMemo(() => (paginatedData as any)?.total_count ?? 0, [paginatedData]);
   const pageCount = Math.ceil(totalCount / pageSize);
 
   const columns = useMemo<ColumnDef<ReportData>[]>(() => [
