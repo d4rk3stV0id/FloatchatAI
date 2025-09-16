@@ -29,6 +29,7 @@ export interface Float {
   id: number; wmo_id: number; latitude: number; longitude: number;
   last_seen: string | null; region: string | null;
   latest_temperature: number | null; latest_pressure: number | null;
+  latest_salinity: number | null; 
 }
 const fetchFloats = async (): Promise<Float[]> => {
   const { data, error } = await supabase.rpc('get_floats_with_latest_measurements');

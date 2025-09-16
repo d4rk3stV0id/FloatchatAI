@@ -259,3 +259,14 @@
   .map-popup p { margin: 4px 0; }
   .map-popup strong { color: #00ffff; }
   .map-popup hr { border: none; border-top: 1px solid #00ffff50; margin: 8px 0; }
+
+  .pulsing-icon-container.selected .sonar-emitter {
+    width: 30px;
+    height: 30px;
+    border-width: 2px;
+  }
+  
+  .pulsing-icon-container.selected .sonar-wave {
+    /* Make the pulse animation bigger and faster */
+    animation: sonar-wave 2.5s infinite;
+  }
