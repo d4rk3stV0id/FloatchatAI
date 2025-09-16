@@ -23,7 +23,7 @@ const Landing: React.FC = () => {
   return (
   <div className="min-h-screen bg-background text-foreground animate-fade-in">
       {/* Header */}
-  <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50 animate-slide-in">
+  <header className="glass-navbar fixed top-0 left-0 right-0 z-50 animate-slide-in">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <Waves className="h-6 w-6 text-ocean-primary" />

@@ -347,6 +347,63 @@
     background: var(--gradient-glow);
     backdrop-filter: blur(10px);
   }
+
+  /* Glass Navbar - modern backdrop blur with graceful fallbacks */
+  .glass-navbar {
+    position: relative;
+    background: rgba(255, 255, 255, 0); /* base for browsers without backdrop support */
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* contain pseudo-element */
+    z-index: 10;
+  }
+
+  /* Use a faint tint overlay via ::before so we can control color + opacity independently */
+  .glass-navbar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.35));
+    mix-blend-mode: normal;
+    pointer-events: none;
+    transition: background 0.25s ease, opacity 0.25s ease;
+  }
+
+  /* Prefer reduced transparency: remove heavy transparency for accessibility */
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-navbar {
+      background: color-mix(in srgb, white 97%, transparent);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    .glass-navbar::before { display: none; }
+  }
+
+  /* Only apply backdrop-filter when supported */
+  @supports ((-webkit-backdrop-filter: blur(5.3px)) or (backdrop-filter: blur(5.3px))) {
+    .glass-navbar {
+      background: rgba(255,255,255,0.08);
+      -webkit-backdrop-filter: blur(5.3px);
+      backdrop-filter: blur(5.3px);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .glass-navbar::before {
+      /* slightly stronger tint when blur is available */
+      background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.08));
+    }
+  }
+
+  /* Dark mode tweak: cooler, semi-transparent tint */
+  .dark .glass-navbar::before {
+    background: linear-gradient(180deg, rgba(6,30,60,0.28), rgba(6,30,60,0.12));
+  }
+
+  @supports ((-webkit-backdrop-filter: blur(5.3px)) or (backdrop-filter: blur(5.3px))) {
+    .dark .glass-navbar {
+      background: rgba(6,30,60,0.18);
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.6);
+    }
+  }
   
   /* Ocean Button */
   .ocean-button {
