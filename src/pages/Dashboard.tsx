@@ -101,7 +101,7 @@ const Dashboard: React.FC = () => {
         {/* Logo Header with Enhanced Styling */}
         <div className={`flex items-center gap-3 p-6 mb-6 border-b border-ocean-primary/10 ${isSidebarExpanded ? 'justify-start' : 'justify-center'}`}>
             <div className="p-3 bg-ocean-gradient rounded-2xl shadow-lg ring-2 ring-ocean-primary/30 animate-ocean-pulse">
-              <img src="/logo.png" alt="Project Logo" className="h-7 w-7 object-contain"/>
+              <img src="/floatlogo.png" alt="FloatChat Logo" className="h-7 w-7 object-contain"/>
             </div>
             {isSidebarExpanded && (
               <div className="animate-fade-in">

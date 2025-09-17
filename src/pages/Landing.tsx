@@ -363,7 +363,7 @@ const Landing: React.FC = () => {
             {/* Card 1: Placeholder Team Member */}
             <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
-                    <img src="/logo.png" alt="Profile Picture" className="w-full h-full object-cover" />
+                    <img src="/floatlogo.png" alt="Profile Picture" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-semibold mb-1">Dhanush P</h3>
                 <p className="text-sm text-muted-foreground mb-4">Lead Developer</p>
@@ -377,7 +377,7 @@ const Landing: React.FC = () => {
             {/* Card 2: Placeholder Team Member */}
             <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
-                    <img src="/logo.png" alt="Profile Picture" className="w-full h-full object-cover" />
+                    <img src="/floatlogo.png" alt="Profile Picture" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-semibold mb-1">Lakshay Sharma</h3>
                 <p className="text-sm text-muted-foreground mb-4">Data Scientist</p>
@@ -391,7 +391,7 @@ const Landing: React.FC = () => {
             {/* Card 3: Placeholder Team Member */}
             <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
-                    <img src="/logo.png" alt="Profile Picture" className="w-full h-full object-cover" />
+                    <img src="/floatlogo.png" alt="Profile Picture" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-semibold mb-1">Lochan</h3>
                 <p className="text-sm text-muted-foreground mb-4">UI/UX Designer</p>
@@ -405,7 +405,7 @@ const Landing: React.FC = () => {
             {/* Card 4: Placeholder Team Member */}
             <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
-                    <img src="/logo.png" alt="Profile Picture" className="w-full h-full object-cover" />
+                    <img src="/floatlogo.png" alt="Profile Picture" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-semibold mb-1">Swaraj S</h3>
                 <p className="text-sm text-muted-foreground mb-4">Project Manager</p>
@@ -419,7 +419,7 @@ const Landing: React.FC = () => {
             {/* Card 5: Placeholder Team Member */}
             <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
-                    <img src="/logo.png" alt="Profile Picture" className="w-full h-full object-cover" />
+                    <img src="/floatlogo.png" alt="Profile Picture" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-semibold mb-1">Mohammed Faizaan</h3>
                 <p className="text-sm text-muted-foreground mb-4">DevOps Engineer</p>
@@ -433,7 +433,7 @@ const Landing: React.FC = () => {
             {/* Card 6: Placeholder Team Member */}
             <Card className="p-6 text-center card-shadow border-ocean-primary/20 animate-scale-in card-animated-border glass-navbar">
                 <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto mb-4 overflow-hidden">
-                    <img src="/logo.png" alt="Profile Picture" className="w-full h-full object-cover" />
+                    <img src="/floatlogo.png" alt="Profile Picture" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-semibold mb-1">Roshni Ghosh</h3>
                 <p className="text-sm text-muted-foreground mb-4">Marketing & Outreach</p>
@@ -451,7 +451,7 @@ const Landing: React.FC = () => {
   <footer className="py-12 px-6 border-t border-border/50 bg-white/10 dark:bg-ocean-surface/80 animate-fade-in-up">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <img src="/logo.png" alt="Logo" className="h-6 w-6 object-contain"/>
+            <img src="/floatlogo.png" alt="FloatChat Logo" className="h-6 w-6 object-contain"/>
             <span className="text-xl font-bold">FloatChat</span>
           </div>
           <p className="text-muted-foreground">
