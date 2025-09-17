@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Wind, Thermometer, Sunrise, Sunset, Navigation, Sailboat, Waves, Fish, Filter, Flower2, Droplets } from 'lucide-react';
+import { Loader2, Wind, Thermometer, Sunrise, Sunset, Navigation, Sailboat, Waves, Fish, Filter, Flower2, Droplets, BarChart3 } from 'lucide-react';
 import { useFloats, useMarineForecast, Float } from '@/lib/dataHooks';
 import { T } from '@/contexts/LanguageContexts'; // Corrected import path
 import { MapContainer, TileLayer, Marker, Tooltip, GeoJSON } from 'react-leaflet';
@@ -101,26 +101,52 @@ const AnalyticsView: React.FC = () => {
   const coralRisk = selectedFloat ? getCoralBleachingRisk(selectedFloat.latest_temperature) : null;
 
   return (
-    <div className="h-full w-full overflow-y-auto p-6 md:p-8 animate-fade-in-up">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2"><T>Insights & Predictions</T></h1>
-        <p className="text-muted-foreground"><T>Select a float to view real-time marine forecasts and alerts.</T></p>
+    <div className="h-full w-full overflow-y-auto p-8 animate-fade-in-up bg-gradient-to-br from-background via-ocean-surface/10 to-background">
+      <div className="mb-10">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="p-3 bg-ocean-gradient rounded-2xl shadow-lg animate-ocean-pulse">
+            <BarChart3 className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-ocean-primary to-ocean-accent bg-clip-text text-transparent">
+              <T>Insights & Predictions</T>
+            </h1>
+            <p className="text-muted-foreground text-lg"><T>Select a float to view real-time marine forecasts and alerts.</T></p>
+          </div>
+        </div>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{height: 'calc(100% - 90px)'}}>
-        <Card className="card-shadow border-border/20 h-full p-0 overflow-hidden">
-          {isLoadingFloats ? <div className="flex items-center justify-center h-full"><Loader2 className="h-10 w-10 animate-spin text-ocean-primary" /></div> : <MiniMap floats={floats || []} onSelectFloat={setSelectedFloat} selectedFloatId={selectedFloat?.id || null} />}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8" style={{height: 'calc(100% - 120px)'}}>
+        <Card className="card-shadow border-ocean-primary/20 h-full p-0 overflow-hidden bg-card/95 backdrop-blur-xl shadow-2xl">
+          <div className="p-6 border-b border-ocean-primary/10 bg-gradient-to-r from-ocean-primary/5 to-ocean-accent/5">
+            <h3 className="text-xl font-bold text-ocean-primary mb-2">Interactive Ocean Map</h3>
+            <p className="text-sm text-muted-foreground">Click any ARGO float to explore its location and data</p>
+          </div>
+          {isLoadingFloats ? (
+            <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-ocean-surface/20 to-ocean-deep/5">
+              <Loader2 className="h-12 w-12 animate-spin text-ocean-primary mb-4" />
+              <p className="text-ocean-primary font-medium">Loading ocean data...</p>
+            </div>
+          ) : (
+            <div className="h-full overflow-hidden rounded-b-lg">
+              <MiniMap floats={floats || []} onSelectFloat={setSelectedFloat} selectedFloatId={selectedFloat?.id || null} />
+            </div>
+          )}
         </Card>
 
         <div className="h-full flex flex-col">
           <Tabs defaultValue="forecast" className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="forecast"><T>Forecast</T></TabsTrigger>
-              <TabsTrigger value="insights"><T>Derived Insights</T></TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-card/90 backdrop-blur-sm border border-ocean-primary/20 shadow-lg">
+              <TabsTrigger value="forecast" className="data-[state=active]:bg-ocean-primary/20 data-[state=active]:text-ocean-primary font-medium">
+                <T>Forecast</T>
+              </TabsTrigger>
+              <TabsTrigger value="insights" className="data-[state=active]:bg-ocean-primary/20 data-[state=active]:text-ocean-primary font-medium">
+                <T>Derived Insights</T>
+              </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="forecast" className="flex-1 mt-4">
-              <Card className="card-shadow border-border/20 h-full flex flex-col">
+            <TabsContent value="forecast" className="flex-1 mt-6">
+              <Card className="card-shadow border-ocean-primary/20 h-full flex flex-col bg-card/95 backdrop-blur-xl shadow-2xl">
                 <CardHeader>
                   {selectedFloat ? (
                     <>
@@ -175,8 +201,8 @@ const AnalyticsView: React.FC = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="insights" className="flex-1 mt-4">
-                <Card className="card-shadow border-border/20 h-full flex flex-col">
+            <TabsContent value="insights" className="flex-1 mt-6">
+                <Card className="card-shadow border-ocean-primary/20 h-full flex flex-col bg-card/95 backdrop-blur-xl shadow-2xl">
                     <CardHeader><CardTitle><T>Derived Insights</T></CardTitle><CardDescription><T>Actionable intelligence based on forecast and float data.</T></CardDescription></CardHeader>
                     <CardContent className="flex-1 flex flex-col items-center justify-center">
                         {isLoadingForecast && <Loader2 className="h-10 w-10 animate-spin text-ocean-primary" />}

@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useReportData, ReportData } from '@/lib/dataHooks';
 import { T } from '@/contexts/LanguageContexts';
-import { Download, ChevronDown, ArrowUpDown, Loader2, Search } from 'lucide-react';
+import { Download, ChevronDown, ArrowUpDown, Loader2, Search, FileText } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { addDays, format } from 'date-fns';
 import {
@@ -108,37 +108,73 @@ const ReportGeneratorView: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full overflow-y-auto p-6 md:p-8 bg-background animate-fade-in-up">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2"><T>Report Generator</T></h1>
-          <p className="text-muted-foreground"><T>Filter, sort, and export ARGO float measurement data</T></p>
+    <div className="h-full w-full overflow-y-auto p-8 bg-gradient-to-br from-background via-ocean-surface/10 to-background animate-fade-in-up">
+      <div className="max-w-7xl mx-auto space-y-10">
+        <div className="mb-10">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-3 bg-ocean-gradient rounded-2xl shadow-lg animate-ocean-pulse">
+              <FileText className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-ocean-primary to-ocean-accent bg-clip-text text-transparent">
+                <T>Report Generator</T>
+              </h1>
+              <p className="text-muted-foreground text-lg"><T>Filter, sort, and export ARGO float measurement data</T></p>
+            </div>
+          </div>
         </div>
 
-        <Card className="card-shadow border-border/20">
-          <CardHeader><CardTitle><T>Filter & Export</T></CardTitle><CardDescription><T>Select a date range and columns, then apply to generate your report.</T></CardDescription></CardHeader>
-          <CardContent className="flex flex-col md:flex-row items-center gap-4">
-            <DatePickerWithRange date={date} setDate={setDate} />
-            <Button onClick={handleApplyFilters} disabled={isFetching}>
+        <Card className="card-shadow border-ocean-primary/20 bg-card/95 backdrop-blur-xl shadow-2xl">
+          <CardHeader className="bg-gradient-to-r from-ocean-primary/5 to-ocean-accent/5 border-b border-ocean-primary/10">
+            <CardTitle className="text-xl text-ocean-primary"><T>Filter & Export</T></CardTitle>
+            <CardDescription className="text-base"><T>Select a date range and columns, then apply to generate your report.</T></CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <DatePickerWithRange date={date} setDate={setDate} />
+              <Button 
+                onClick={handleApplyFilters} 
+                disabled={isFetching}
+                className="bg-ocean-primary hover:bg-ocean-primary/90 text-white shadow-lg hover:shadow-ocean-primary/30 transition-all duration-300"
+              >
                 {isFetching ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                 <T>Apply Filters</T>
-            </Button>
-            <div className="flex-grow" />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild><Button variant="outline"><T>Columns</T><ChevronDown className="ml-2 h-4 w-4" /></Button></DropdownMenuTrigger>
-              <DropdownMenuContent align="end">{table.getAllColumns().filter(col => col.getCanHide()).map(column => (<DropdownMenuCheckboxItem key={column.id} checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}><T>{column.id}</T></DropdownMenuCheckboxItem>))}</DropdownMenuContent>
-            </DropdownMenu>
-            <Button onClick={handleDownload} disabled={table.getRowModel().rows.length === 0}><Download className="mr-2 h-4 w-4" /> <T>Download CSV</T></Button>
+              </Button>
+              <div className="flex-grow" />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="border-ocean-primary/20 hover:bg-ocean-primary/10">
+                    <T>Columns</T><ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-xl border-ocean-primary/20">
+                  {table.getAllColumns().filter(col => col.getCanHide()).map(column => (
+                    <DropdownMenuCheckboxItem key={column.id} checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                      <T>{column.id}</T>
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button 
+                onClick={handleDownload} 
+                disabled={table.getRowModel().rows.length === 0}
+                className="bg-ocean-accent hover:bg-ocean-accent/90 text-white shadow-lg hover:shadow-ocean-accent/30 transition-all duration-300"
+              >
+                <Download className="mr-2 h-4 w-4" /> <T>Download CSV</T>
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="card-shadow border-border/20">
-          <CardHeader>
-            <CardTitle><T>Report Data</T></CardTitle>
-            <CardDescription><T>Showing page</T> {pageIndex + 1} <T>of</T> {pageCount} (<T>Total records</T>: {totalCount})</CardDescription>
+        <Card className="card-shadow border-ocean-primary/20 bg-card/95 backdrop-blur-xl shadow-2xl">
+          <CardHeader className="bg-gradient-to-r from-ocean-primary/5 to-ocean-accent/5 border-b border-ocean-primary/10">
+            <CardTitle className="text-xl text-ocean-primary"><T>Report Data</T></CardTitle>
+            <CardDescription className="text-base">
+              <T>Showing page</T> {pageIndex + 1} <T>of</T> {pageCount} (<T>Total records</T>: {totalCount})
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
+          <CardContent className="p-6">
+            <div className="rounded-xl border border-ocean-primary/20 overflow-hidden bg-card/50 backdrop-blur-sm">
               <Table>
                 <TableHeader>{table.getHeaderGroups().map(headerGroup => (<TableRow key={headerGroup.id}>{headerGroup.headers.map(header => (<TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>))}</TableRow>))}</TableHeader>
                 <TableBody>
@@ -152,10 +188,30 @@ const ReportGeneratorView: React.FC = () => {
                 </TableBody>
               </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <span className="text-sm text-muted-foreground"><T>Page</T> {pageIndex + 1} of {pageCount}</span>
-              <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}><T>Previous</T></Button>
-              <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}><T>Next</T></Button>
+            <div className="flex items-center justify-between py-6 px-2">
+              <span className="text-sm text-muted-foreground font-medium">
+                <T>Page</T> {pageIndex + 1} of {pageCount}
+              </span>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => table.previousPage()} 
+                  disabled={!table.getCanPreviousPage()}
+                  className="border-ocean-primary/20 hover:bg-ocean-primary/10 transition-all duration-300"
+                >
+                  <T>Previous</T>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => table.nextPage()} 
+                  disabled={!table.getCanNextPage()}
+                  className="border-ocean-primary/20 hover:bg-ocean-primary/10 transition-all duration-300"
+                >
+                  <T>Next</T>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

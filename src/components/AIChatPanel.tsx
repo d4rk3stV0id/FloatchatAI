@@ -42,20 +42,22 @@ const ChatBubble: React.FC<{ message: ChatMessageData }> = ({ message }) => {
   const translatedContent = useTranslate(message.content);
 
   return (
-    <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[85%] p-3 rounded-lg ${
+    <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+      <div className={`max-w-[85%] p-4 rounded-2xl shadow-lg transition-all duration-300 ${
         message.type === 'user' 
-          ? 'bg-blue-600 text-white font-semibold' 
-          : 'bg-slate-800 text-slate-100'
+          ? 'bg-gradient-to-r from-ocean-primary to-ocean-accent text-white font-medium shadow-ocean-primary/20 ml-4' 
+          : 'bg-card/90 backdrop-blur-sm text-foreground border border-ocean-primary/10 mr-4'
       }`}>
         {message.type === 'loading' ? (
-          <div className="flex items-center justify-center p-1">
-            <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-            <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
+          <div className="flex items-center justify-center py-2">
+            <div className="flex gap-1">
+              <div className="w-2 h-2 bg-ocean-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="w-2 h-2 bg-ocean-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="w-2 h-2 bg-ocean-primary rounded-full animate-bounce"></div>
+            </div>
           </div>
         ) : (
-          <p className="text-sm whitespace-pre-wrap">{translatedContent}</p>
+          <p className="text-sm whitespace-pre-wrap leading-relaxed">{translatedContent}</p>
         )}
       </div>
     </div>
@@ -134,14 +136,25 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
   };
 
   return (
-    <Card className="w-96 h-full flex flex-col bg-card/80 backdrop-blur-lg border-l border-border/50 shadow-2xl">
-      <div className="p-4 border-b border-border/50 flex items-center gap-2">
-        <BrainCircuit className="h-5 w-5 text-blue-400"/>
-        <h2 className="font-semibold">AI Assistant</h2>
+    <Card className="w-96 h-full flex flex-col bg-card/95 backdrop-blur-xl border-l border-ocean-primary/20 shadow-2xl">
+      {/* Enhanced Header */}
+      <div className="p-6 border-b border-ocean-primary/10 bg-gradient-to-r from-ocean-primary/5 to-ocean-accent/5">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-ocean-gradient rounded-xl shadow-lg animate-ocean-pulse">
+            <BrainCircuit className="h-6 w-6 text-white"/>
+          </div>
+          <div>
+            <h2 className="font-bold text-lg bg-gradient-to-r from-ocean-primary to-ocean-accent bg-clip-text text-transparent">
+              AI Assistant
+            </h2>
+            <p className="text-xs text-muted-foreground">Powered by Ocean Intelligence</p>
+          </div>
+        </div>
       </div>
       
-      <ScrollArea className="flex-1 p-4 min-h-0">
-        <div className="space-y-4">
+      {/* Enhanced Messages Area */}
+      <ScrollArea className="flex-1 p-6 min-h-0 bg-gradient-to-b from-transparent to-ocean-surface/5">
+        <div className="space-y-6">
           {messages.map((message) => (
             <ChatBubble key={message.id} message={message} />
           ))}
@@ -149,39 +162,54 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
         </div>
       </ScrollArea>
       
-      <div className="p-4 border-t border-border/50">
+      {/* Enhanced Input Area */}
+      <div className="p-6 border-t border-ocean-primary/10 bg-gradient-to-r from-ocean-primary/5 to-ocean-accent/5">
         <div className="relative">
           <Input 
-            placeholder="Ask a question..." 
+            placeholder="Ask about ocean data, trends, or insights..." 
             value={chatInput} 
             onChange={(e) => setChatInput(e.target.value)} 
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            className="pr-16"
-            disabled={listening} // Disable text input while listening
+            className="pr-20 h-12 bg-background/90 backdrop-blur-sm border-ocean-primary/20 rounded-xl shadow-lg placeholder:text-muted-foreground/70 focus:border-ocean-primary focus:ring-2 focus:ring-ocean-primary/20"
+            disabled={listening}
           />
+          
+          {/* Voice Input Button */}
           {browserSupportsSpeechRecognition && (
             <Button
               variant="ghost" 
               size="icon" 
               onClick={handleVoiceButtonClick} 
               disabled={!isMicrophoneAvailable}
-              className={`absolute top-1/2 right-9 -translate-y-1/2 h-8 w-8 transition-colors ${
-                listening ? 'text-red-500 hover:bg-red-500/20' : 'text-blue-500 hover:bg-blue-500/20'
+              className={`absolute top-1/2 right-12 -translate-y-1/2 h-9 w-9 rounded-lg transition-all duration-300 ${
+                listening 
+                  ? 'text-red-500 bg-red-500/10 hover:bg-red-500/20 animate-pulse' 
+                  : 'text-ocean-primary bg-ocean-primary/10 hover:bg-ocean-primary/20'
               }`}
             >
               <Mic className="h-4 w-4" />
             </Button>
           )}
+          
+          {/* Send Button */}
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={() => handleSendMessage()} 
             disabled={!chatInput.trim()}
-            className="absolute top-1/2 right-1 -translate-y-1/2 h-8 w-8 hover:bg-blue-600/20"
+            className="absolute top-1/2 right-1.5 -translate-y-1/2 h-9 w-9 rounded-lg bg-ocean-primary/10 hover:bg-ocean-primary/20 text-ocean-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <CornerDownLeft className="h-4 w-4" />
           </Button>
         </div>
+        
+        {/* Status Indicator */}
+        {listening && (
+          <div className="mt-3 flex items-center gap-2 text-sm text-red-500 animate-fade-in">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            Listening...
+          </div>
+        )}
       </div>
     </Card>
   );

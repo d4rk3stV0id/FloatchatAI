@@ -53,9 +53,21 @@ const Dashboard: React.FC = () => {
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" onClick={() => setActiveView(view)} className={`w-full justify-start gap-4 px-4 ${activeView === view ? 'bg-ocean-primary/20 text-ocean-primary' : ''} ${!isSidebarExpanded ? 'justify-center' : ''}`}>
-            <Icon className="h-5 w-5" />
-            {isSidebarExpanded && <span className="text-sm"><T>{label}</T></span>}
+          <Button 
+            variant="ghost" 
+            onClick={() => setActiveView(view)} 
+            className={`w-full justify-start gap-4 px-4 h-12 rounded-xl transition-all duration-300 group
+              ${activeView === view 
+                ? 'bg-gradient-to-r from-ocean-primary/20 to-ocean-accent/20 text-ocean-primary border border-ocean-primary/30 shadow-lg shadow-ocean-primary/20' 
+                : 'hover:bg-ocean-primary/10 hover:shadow-md'
+              } 
+              ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+            <Icon className={`h-5 w-5 transition-all duration-300 ${activeView === view ? 'text-ocean-primary' : 'text-muted-foreground group-hover:text-ocean-primary'}`} />
+            {isSidebarExpanded && (
+              <span className={`text-sm font-medium transition-all duration-300 ${activeView === view ? 'text-ocean-primary' : 'text-foreground'}`}>
+                <T>{label}</T>
+              </span>
+            )}
           </Button>
         </TooltipTrigger>
         {!isSidebarExpanded && <TooltipContent side="right"><T>{label}</T></TooltipContent>}
@@ -81,47 +93,95 @@ const Dashboard: React.FC = () => {
   return (
     <div className="h-screen bg-background flex overflow-hidden">
        <div className={`
-        fixed inset-y-0 left-0 z-50 bg-card/80 backdrop-blur-lg border-r border-border/50 flex flex-col
-        transition-all duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        ${isSidebarExpanded ? 'w-64' : 'w-20'}`}>
-        <div className={`flex items-center gap-2 p-4 mb-4 ${isSidebarExpanded ? 'justify-start' : 'justify-center'}`}>
-            <div className="p-2 bg-ocean-gradient rounded-xl"><img src="/logo.png" alt="Project Logo" className="h-6 w-6 object-contain"/></div>
-            {isSidebarExpanded && <span className="font-semibold text-lg">FloatChat</span>}
+        fixed inset-y-0 left-0 z-50 bg-card/95 backdrop-blur-xl border-r border-ocean-primary/20 flex flex-col
+        transition-all duration-500 ease-out lg:translate-x-0 shadow-2xl
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isSidebarExpanded ? 'w-72' : 'w-20'}`}>
+        
+        {/* Logo Header with Enhanced Styling */}
+        <div className={`flex items-center gap-3 p-6 mb-6 border-b border-ocean-primary/10 ${isSidebarExpanded ? 'justify-start' : 'justify-center'}`}>
+            <div className="p-3 bg-ocean-gradient rounded-2xl shadow-lg ring-2 ring-ocean-primary/30 animate-ocean-pulse">
+              <img src="/logo.png" alt="Project Logo" className="h-7 w-7 object-contain"/>
+            </div>
+            {isSidebarExpanded && (
+              <div className="animate-fade-in">
+                <span className="font-bold text-xl bg-gradient-to-r from-ocean-primary to-ocean-accent bg-clip-text text-transparent">
+                  FloatChat
+                </span>
+                <p className="text-xs text-muted-foreground mt-1">Ocean Analytics Platform</p>
+              </div>
+            )}
         </div>
-        <div className={`flex-1 flex flex-col gap-2 ${isSidebarExpanded ? 'px-4' : 'px-2 items-center'}`}>
+
+        {/* Enhanced Navigation */}
+        <div className={`flex-1 flex flex-col gap-3 ${isSidebarExpanded ? 'px-6' : 'px-3 items-center'}`}>
           <NavItem icon={MapPin} label="Ocean Map" view="map" />
           <NavItem icon={BarChart3} label="Analytics" view="analytics" />
           <NavItem icon={TrendingUp} label="Trends" view="trends" />
           <NavItem icon={LayoutDashboard} label="Professional Metrics" view="metrics" />
           <NavItem icon={FileText} label="Report Generator" view="reports" />
         </div>
-        <div className={`flex flex-col gap-2 ${isSidebarExpanded ? 'px-4' : 'px-2 items-center'}`}>
+
+        {/* Enhanced Bottom Section */}
+        <div className={`flex flex-col gap-3 border-t border-ocean-primary/10 pt-6 ${isSidebarExpanded ? 'px-6' : 'px-3 items-center'}`}>
           <TooltipProvider delayDuration={0}><Tooltip>
-            <TooltipTrigger asChild><Button variant="ghost" onClick={() => navigate('/settings')} className={`w-full justify-start gap-4 px-4 ${!isSidebarExpanded ? 'justify-center' : ''}`}><Settings className="h-5 w-5" />{isSidebarExpanded && <span className="text-sm"><T>Settings</T></span>}</Button></TooltipTrigger>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" onClick={() => navigate('/settings')} 
+                className={`w-full justify-start gap-4 px-4 h-12 rounded-xl hover:bg-ocean-primary/10 transition-all duration-300 ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+                <Settings className="h-5 w-5 text-ocean-primary" />
+                {isSidebarExpanded && <span className="text-sm font-medium"><T>Settings</T></span>}
+              </Button>
+            </TooltipTrigger>
             {!isSidebarExpanded && <TooltipContent side="right"><T>Settings</T></TooltipContent>}
           </Tooltip></TooltipProvider>
+
           <DropdownMenu>
             <TooltipProvider delayDuration={0}><Tooltip>
-              <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button variant="ghost" className={`w-full justify-start gap-4 px-4 ${!isSidebarExpanded ? 'justify-center' : ''}`}><User className="h-5 w-5" />{isSidebarExpanded && <span className="text-sm"><T>Profile</T></span>}</Button></DropdownMenuTrigger></TooltipTrigger>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" 
+                    className={`w-full justify-start gap-4 px-4 h-12 rounded-xl hover:bg-ocean-primary/10 transition-all duration-300 ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+                    <User className="h-5 w-5 text-ocean-primary" />
+                    {isSidebarExpanded && <span className="text-sm font-medium"><T>Profile</T></span>}
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
               {!isSidebarExpanded && <TooltipContent side="right"><T>Profile</T></TooltipContent>}
             </Tooltip></TooltipProvider>
-            <DropdownMenuContent side="right" align="start"><DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /> <T>Logout</T></DropdownMenuItem></DropdownMenuContent>
+            <DropdownMenuContent side="right" align="start" className="bg-card/95 backdrop-blur-xl border-ocean-primary/20">
+              <DropdownMenuItem onClick={handleLogout} className="hover:bg-ocean-primary/10">
+                <LogOut className="mr-2 h-4 w-4" /> <T>Logout</T>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className={`border-t border-border/50 mt-4 p-2 ${isSidebarExpanded ? 'px-4' : 'px-2'}`}>
-           <Button variant="ghost" onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} className="w-full justify-start gap-4 px-4">{isSidebarExpanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}{isSidebarExpanded && <span className="text-sm"><T>Collapse</T></span>}</Button>
+
+        {/* Enhanced Collapse Button */}
+        <div className={`border-t border-ocean-primary/10 mt-4 p-3 ${isSidebarExpanded ? 'px-6' : 'px-3'}`}>
+           <Button variant="ghost" onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} 
+             className="w-full justify-start gap-4 px-4 h-12 rounded-xl hover:bg-ocean-primary/10 transition-all duration-300">
+             {isSidebarExpanded ? <ChevronLeft className="h-5 w-5 text-ocean-primary" /> : <ChevronRight className="h-5 w-5 text-ocean-primary" />}
+             {isSidebarExpanded && <span className="text-sm font-medium"><T>Collapse</T></span>}
+           </Button>
         </div>
       </div>
-      <div className={`relative z-40 flex-1 flex flex-col transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'}`}>
-        <header className="lg:hidden p-4 bg-card/50 backdrop-blur-sm"><Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}><Menu className="h-5 w-5" /></Button></header>
-        <div className="flex-1 flex overflow-hidden">
+
+      {/* Enhanced Main Content Area */}
+      <div className={`relative z-40 flex-1 flex flex-col transition-all duration-500 ease-out ${isSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'}`}>
+        <header className="lg:hidden p-4 bg-card/90 backdrop-blur-xl border-b border-ocean-primary/20">
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} 
+            className="hover:bg-ocean-primary/10 rounded-xl">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </header>
+        <div className="flex-1 flex overflow-hidden bg-gradient-to-br from-background to-ocean-surface/20">
           <div className="flex-1 h-full min-w-0">{renderActiveView()}</div>
           <div className="flex-shrink-0">
             <AIChatPanel onNewResponse={executeActions} />
           </div>
         </div>
       </div>
-      {sidebarOpen && (<div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />)}
+      {sidebarOpen && (<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />)}
     </div>
   );
 };

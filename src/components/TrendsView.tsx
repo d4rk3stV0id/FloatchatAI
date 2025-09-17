@@ -40,45 +40,75 @@ const TrendsView: React.FC = () => {
     if (error) return <div className="h-full w-full flex items-center justify-center text-destructive"><T>Error loading trends</T>: {error.message}</div>;
     
     return (
-        <div className="h-full w-full overflow-y-auto p-6 md:p-8 animate-fade-in-up">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-1"><T>Global Ocean Trends</T></h1>
-                <p className="text-muted-foreground"><T>Strategic overview of long-term climate and marine patterns.</T></p>
+        <div className="h-full w-full overflow-y-auto p-8 animate-fade-in-up bg-gradient-to-br from-background via-ocean-surface/10 to-background">
+            <div className="mb-10">
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 bg-ocean-gradient rounded-2xl shadow-lg animate-ocean-pulse">
+                        <TrendingUp className="h-7 w-7 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-ocean-primary to-ocean-accent bg-clip-text text-transparent">
+                            <T>Global Ocean Trends</T>
+                        </h1>
+                        <p className="text-muted-foreground text-lg"><T>Strategic overview of long-term climate and marine patterns.</T></p>
+                    </div>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                {/* --- Key Insight Cards --- */}
-                <Card className="card-shadow border-border/20 bg-gradient-to-br from-ocean-primary/20 to-transparent">
-                    <CardHeader><CardTitle className="text-muted-foreground text-sm font-medium"><T>Global 7-Day Trend</T></CardTitle></CardHeader>
-                    <CardContent className="flex items-center justify-center gap-4">
-                        {/* --- FIX: Reduced font and icon sizes for a more subtle look --- */}
-                        <div className={`flex items-center gap-2 text-3xl font-bold ${trendColor}`}>
-                            {tempTrend > 0 && <ArrowUp className="h-8 w-8" />}
-                            {tempTrend < 0 && <ArrowDown className="h-8 w-8" />}
-                            <span>{tempTrend > 0 ? <T>Warmer</T> : tempTrend < 0 ? <T>Cooler</T> : <T>Stable</T>}</span>
+                {/* --- Enhanced Key Insight Cards --- */}
+                <Card className="card-shadow border-ocean-primary/20 bg-gradient-to-br from-ocean-primary/10 via-ocean-accent/5 to-transparent backdrop-blur-xl shadow-2xl group hover:shadow-ocean-primary/20 transition-all duration-500">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-muted-foreground text-sm font-medium uppercase tracking-wide">
+                            <T>Global 7-Day Trend</T>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center justify-center gap-4 pt-0">
+                        <div className={`flex items-center gap-3 text-3xl font-bold ${trendColor} group-hover:scale-110 transition-transform duration-300`}>
+                            {tempTrend > 0 && <ArrowUp className="h-10 w-10" />}
+                            {tempTrend < 0 && <ArrowDown className="h-10 w-10" />}
+                            <span className="bg-gradient-to-r from-current to-current/80 bg-clip-text text-transparent">
+                                {tempTrend > 0 ? <T>Warmer</T> : tempTrend < 0 ? <T>Cooler</T> : <T>Stable</T>}
+                            </span>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="card-shadow border-border/20 bg-gradient-to-br from-ocean-primary/20 to-transparent">
-                    <CardHeader><CardTitle className="text-muted-foreground text-sm font-medium"><T>Annual Average Temp.</T></CardTitle></CardHeader>
-                    <CardContent className="flex items-center justify-center gap-3">
-                        <Thermometer className="h-8 w-8 text-cyan-400" />
-                        <span className="text-4xl font-bold text-foreground">{overallAvgTemp?.toFixed(1)}°C</span>
+                <Card className="card-shadow border-ocean-primary/20 bg-gradient-to-br from-ocean-primary/10 via-ocean-accent/5 to-transparent backdrop-blur-xl shadow-2xl group hover:shadow-ocean-primary/20 transition-all duration-500">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-muted-foreground text-sm font-medium uppercase tracking-wide">
+                            <T>Annual Average Temp.</T>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center justify-center gap-4 pt-0">
+                        <div className="flex items-center gap-4 group-hover:scale-110 transition-transform duration-300">
+                            <Thermometer className="h-10 w-10 text-ocean-primary" />
+                            <span className="text-4xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-accent bg-clip-text text-transparent">
+                                {overallAvgTemp?.toFixed(1)}°C
+                            </span>
+                        </div>
                     </CardContent>
                 </Card>
 
-                <Card className="card-shadow border-border/20 bg-gradient-to-br from-ocean-primary/20 to-transparent">
-                     <CardHeader><CardTitle className="text-muted-foreground text-sm font-medium"><T>Cyclone Likeliness (Indian Ocean)</T></CardTitle></CardHeader>
-                     <CardContent className="flex items-center justify-center gap-3">
-                        <cycloneRisk.icon className={`h-8 w-8 ${cycloneRisk.color}`} />
-                        <span className={`text-3xl font-bold ${cycloneRisk.color}`}>{cycloneRisk.level}</span>
-                     </CardContent>
+                <Card className="card-shadow border-ocean-primary/20 bg-gradient-to-br from-ocean-primary/10 via-ocean-accent/5 to-transparent backdrop-blur-xl shadow-2xl group hover:shadow-ocean-primary/20 transition-all duration-500">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-muted-foreground text-sm font-medium uppercase tracking-wide">
+                            <T>Cyclone Likeliness (Indian Ocean)</T>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center justify-center gap-4 pt-0">
+                        <div className="flex items-center gap-4 group-hover:scale-110 transition-transform duration-300">
+                            <cycloneRisk.icon className={`h-10 w-10 ${cycloneRisk.color}`} />
+                            <span className={`text-3xl font-bold ${cycloneRisk.color}`}>
+                                {cycloneRisk.level}
+                            </span>
+                        </div>
+                    </CardContent>
                 </Card>
 
-                {/* --- Main Seasonal Chart --- */}
-                <Card className="card-shadow border-border/20 lg:col-span-2">
+                {/* --- Enhanced Main Seasonal Chart --- */}
+                <Card className="card-shadow border-ocean-primary/20 lg:col-span-2 bg-card/95 backdrop-blur-xl shadow-2xl">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-cyan-400" /> <T>Global Seasonal Temperature Pattern</T></CardTitle>
                         <CardDescription><T>Average sea surface temperature over the last 12 months.</T></CardDescription>
@@ -98,8 +128,8 @@ const TrendsView: React.FC = () => {
                     </CardContent>
                 </Card>
 
-                {/* --- NEW: Global Heat Index Card --- */}
-                <Card className="card-shadow border-border/20">
+                {/* --- Enhanced Global Heat Index Card --- */}
+                <Card className="card-shadow border-ocean-primary/20 bg-card/95 backdrop-blur-xl shadow-2xl">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5 text-cyan-400" /> <T>Global Heat Index</T></CardTitle>
                         <CardDescription><T>Regional temperature anomaly vs. global average.</T></CardDescription>
