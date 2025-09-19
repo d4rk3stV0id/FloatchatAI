@@ -15,41 +15,67 @@ const tools = [
     "function_declarations": [
       {
         "name": "find_warmest_or_coldest_float",
-        "description": "Find the float with the highest or lowest surface temperature, returning its details including coordinates.",
+        "description": "Find the float with the highest or lowest surface temperature among the currently visible floats.",
         "parameters": {
           "type": "OBJECT",
           "properties": {
-            "condition": { "type": "STRING", "enum": ["warmest", "coldest"] }
+            "condition": { "type": "STRING", "enum": ["warmest", "coldest"] },
+            "visible_wmo_ids": { "type": "ARRAY", "items": { "type": "NUMBER" } }
           },
           "required": ["condition"]
         }
       },
       {
         "name": "get_example_float_info",
-        "description": "Retrieves information for a single, random float to be used as an example in a general informational response.",
-        "parameters": { "type": "OBJECT", "properties": {} } // No parameters needed
+        "description": "Retrieves information for a single, random float from the currently visible set to be used as an example in a general informational response.",
+        "parameters": { 
+          "type": "OBJECT", 
+          "properties": { 
+            "visible_wmo_ids": { "type": "ARRAY", "items": { "type": "NUMBER" } }
+          } 
+        }
+      },
+      {
+        "name": "get_float_by_wmo_id",
+        "description": "Get details for a specific float by its WMO ID from the currently visible set.",
+        "parameters": {
+          "type": "OBJECT",
+          "properties": {
+            "wmo_id": { "type": "NUMBER" },
+            "visible_wmo_ids": { "type": "ARRAY", "items": { "type": "NUMBER" } }
+          },
+          "required": ["wmo_id"]
+        }
       }
     ]
   }
 ];
 
 // --- Tool Logic ---
-async function find_warmest_or_coldest_float(supabaseClient, { condition }) {
-  // Get surface measurements (pressure < 20) with float details
-  const { data, error } = await supabaseClient
+async function find_warmest_or_coldest_float(supabaseClient, { condition, visible_wmo_ids = [] }) {
+  // Base query: surface measurements (pressure < 20) with float details
+  let query = supabaseClient
     .from("measurements")
     .select(`
-      temperature, 
+      temperature,
       pressure,
       floats!inner(wmo_id, latitude, longitude, region, last_seen, id)
     `)
     .lt('pressure', 20)
-    .not('temperature', 'is', null)
+    .not('temperature', 'is', null);
+
+  // Restrict to currently visible floats if provided
+  if (Array.isArray(visible_wmo_ids) && visible_wmo_ids.length > 0) {
+    query = query.in('floats.wmo_id', visible_wmo_ids);
+  }
+
+  const { data, error } = await query
     .order('temperature', { ascending: condition === 'coldest' })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (error) throw new Error(`Supabase error: ${error.message}`);
+  if (!data) return null;
   
   return {
     id: data.floats.id,
@@ -64,17 +90,24 @@ async function find_warmest_or_coldest_float(supabaseClient, { condition }) {
 }
 
 // NEW FUNCTION: Fetches a random float to be used as an example
-async function get_example_float_info(supabaseClient) {
-    // Get all floats first, then pick a random one
+async function get_example_float_info(supabaseClient, { visible_wmo_ids = [] } = {}) {
+    // Get all floats with their latest measurements
     const { data: allFloats, error: floatsError } = await supabaseClient
         .rpc('get_floats_with_latest_measurements');
     
     if (floatsError) throw new Error(`Supabase error: ${floatsError.message}`);
-    if (!allFloats || allFloats.length === 0) throw new Error('No floats available');
+    if (!allFloats || allFloats.length === 0) return null;
+
+    // Restrict to visible set if provided
+    const candidates = Array.isArray(visible_wmo_ids) && visible_wmo_ids.length > 0
+      ? allFloats.filter((f: any) => visible_wmo_ids.includes(f.wmo_id))
+      : allFloats;
+
+    if (candidates.length === 0) return null;
 
     // Pick a random float from the results
-    const randomIndex = Math.floor(Math.random() * allFloats.length);
-    const randomFloat = allFloats[randomIndex];
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+    const randomFloat = candidates[randomIndex];
 
     return {
         id: randomFloat.id,
@@ -89,12 +122,51 @@ async function get_example_float_info(supabaseClient) {
     };
 }
 
+// NEW FUNCTION: Get a specific float by WMO ID (restricted to visible set if provided)
+async function get_float_by_wmo_id(supabaseClient, { wmo_id, visible_wmo_ids = [] }) {
+  if (!wmo_id) return null;
+  if (Array.isArray(visible_wmo_ids) && visible_wmo_ids.length > 0 && !visible_wmo_ids.includes(wmo_id)) {
+    return null; // Not visible, don't expose
+  }
+
+  const { data: floatData, error: floatError } = await supabaseClient
+    .from('floats')
+    .select('id, wmo_id, latitude, longitude, region, last_seen')
+    .eq('wmo_id', wmo_id)
+    .maybeSingle();
+
+  if (floatError) throw new Error(`Supabase error: ${floatError.message}`);
+  if (!floatData) return null;
+
+  const { data: surf, error: measError } = await supabaseClient
+    .from('measurements')
+    .select('temperature, pressure')
+    .eq('float_id', floatData.id)
+    .lt('pressure', 20)
+    .order('timestamp', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (measError) throw new Error(`Supabase error: ${measError.message}`);
+
+  return {
+    id: floatData.id,
+    wmo_id: floatData.wmo_id,
+    latitude: floatData.latitude,
+    longitude: floatData.longitude,
+    region: floatData.region,
+    last_seen: floatData.last_seen,
+    temperature: surf?.temperature ?? null,
+    pressure: surf?.pressure ?? null
+  };
+}
+
 // --- Main Request Handler ---
 const handler = async (req: Request) => {
     if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
     try {
-        const { query } = await req.json();
+        const { query, visible_wmo_ids = [] } = await req.json();
         const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
         const supabaseClient = createClient(
             Deno.env.get("SUPABASE_URL") ?? "",
@@ -112,14 +184,17 @@ const handler = async (req: Request) => {
 
           TOOL USAGE RULES:
           - If the user asks for "warmest float" or "coldest float", use the 'find_warmest_or_coldest_float' tool
-          - For general questions, use 'get_example_float_info' to fetch a real float as an example
+          - For general questions, you may use 'get_example_float_info' to fetch a real float as an example
+          
+          VISIBLE FLOATS SCOPE:
+          - Only consider floats whose WMO IDs are in this list: ${JSON.stringify(visible_wmo_ids)}
+          - When calling any tool, pass the argument visible_wmo_ids: ${JSON.stringify(visible_wmo_ids)}
           
           ACTION GENERATION RULES:
-          - When you find a specific float (warmest/coldest), ALWAYS include these actions:
+          - When you mention a specific float (warmest/coldest or by ID), ALWAYS include these actions:
             1. MAP_PAN_ZOOM: { "lat": latitude, "lng": longitude, "zoom": 8 }
             2. HIGHLIGHT_FLOAT: { "wmo_id": wmo_id }
-          - For general answers with example floats, include the same actions to show the example float
-          - If no float is involved, use empty actions array: []
+          - For general answers that DO NOT reference a specific float, return actions: []
 
           CRITICAL RESPONSE RULES:
           - You MUST ONLY use the exact data returned by the tools - NEVER make up or invent data

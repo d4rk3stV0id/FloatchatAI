@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
         <div className="flex-1 flex overflow-hidden bg-gradient-to-br from-background to-ocean-surface/20">
           <div className="flex-1 h-full min-w-0">{renderActiveView()}</div>
           <div className="flex-shrink-0">
-            <AIChatPanel onNewResponse={executeActions} />
+            <AIChatPanel onNewResponse={executeActions} visibleFloats={floats || []} />
           </div>
         </div>
       </div>

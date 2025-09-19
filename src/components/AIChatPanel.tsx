@@ -31,6 +31,7 @@ interface AIResponse {
 }
 interface AIChatPanelProps {
     onNewResponse: (actions: AIAction[]) => void;
+    visibleFloats?: import('@/lib/dataHooks').Float[];
 }
 
 // --- NEW: A dedicated component for each chat bubble ---
@@ -65,7 +66,7 @@ const ChatBubble: React.FC<{ message: ChatMessageData }> = ({ message }) => {
 };
 
 
-const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
+const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse, visibleFloats }) => {
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<ChatMessageData[]>([
     { id: '1', type: 'ai', content: 'Welcome! Ask me to find the warmest float.' }
@@ -108,7 +109,7 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onNewResponse }) => {
 
     try {
       const { data, error } = await supabase.functions.invoke('process-query', {
-        body: { query: query },
+        body: { query: query, visible_wmo_ids: (visibleFloats || []).map(f => f.wmo_id) },
       });
 
       if (error) throw new Error(error.message);
