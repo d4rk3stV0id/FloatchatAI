@@ -35,10 +35,16 @@ const tools = [
 
 // --- Tool Logic ---
 async function find_warmest_or_coldest_float(supabaseClient, { condition }) {
+  // Get surface measurements (pressure < 20) with float details
   const { data, error } = await supabaseClient
     .from("measurements")
-    .select(`temperature, floats!inner(wmo_id, latitude, longitude)`)
-    .lt('pressure', 20) // Use pressure for surface readings
+    .select(`
+      temperature, 
+      pressure,
+      floats!inner(wmo_id, latitude, longitude, region, last_seen, id)
+    `)
+    .lt('pressure', 20)
+    .not('temperature', 'is', null)
     .order('temperature', { ascending: condition === 'coldest' })
     .limit(1)
     .single();
@@ -46,27 +52,40 @@ async function find_warmest_or_coldest_float(supabaseClient, { condition }) {
   if (error) throw new Error(`Supabase error: ${error.message}`);
   
   return {
+    id: data.floats.id,
     wmo_id: data.floats.wmo_id,
     temperature: data.temperature,
+    pressure: data.pressure,
     latitude: data.floats.latitude,
-    longitude: data.floats.longitude
+    longitude: data.floats.longitude,
+    region: data.floats.region,
+    last_seen: data.floats.last_seen
   };
 }
 
 // NEW FUNCTION: Fetches a random float to be used as an example
 async function get_example_float_info(supabaseClient) {
-    const { data, error } = await supabaseClient
-        .rpc('get_floats_with_latest_measurements') // Use our existing powerful function
-        .order('random()') // A simple way to get a random row in Postgres
-        .limit(1)
-        .single();
+    // Get all floats first, then pick a random one
+    const { data: allFloats, error: floatsError } = await supabaseClient
+        .rpc('get_floats_with_latest_measurements');
     
-    if (error) throw new Error(`Supabase error: ${error.message}`);
+    if (floatsError) throw new Error(`Supabase error: ${floatsError.message}`);
+    if (!allFloats || allFloats.length === 0) throw new Error('No floats available');
+
+    // Pick a random float from the results
+    const randomIndex = Math.floor(Math.random() * allFloats.length);
+    const randomFloat = allFloats[randomIndex];
 
     return {
-        wmo_id: data.wmo_id,
-        region: data.region,
-        temperature: data.latest_temperature
+        id: randomFloat.id,
+        wmo_id: randomFloat.wmo_id,
+        region: randomFloat.region,
+        latitude: randomFloat.latitude,
+        longitude: randomFloat.longitude,
+        temperature: randomFloat.latest_temperature,
+        pressure: randomFloat.latest_pressure,
+        salinity: randomFloat.latest_salinity,
+        last_seen: randomFloat.last_seen
     };
 }
 
@@ -102,9 +121,15 @@ const handler = async (req: Request) => {
           - For general answers with example floats, include the same actions to show the example float
           - If no float is involved, use empty actions array: []
 
+          RESPONSE RULES:
+          - ALWAYS use actual numeric values from the tool results, NEVER use "..." or placeholders
+          - Include specific details like temperature (°C), coordinates, regions, and WMO IDs
+          - Make responses conversational and informative
+          - When mentioning coordinates, format them properly (e.g., "12.5°N, 45.2°E")
+
           REQUIRED JSON Response format:
           {
-            "reply": "Your conversational answer including float details",
+            "reply": "Your conversational answer including actual float details with real values",
             "actions": [
               { "type": "MAP_PAN_ZOOM", "payload": { "lat": number, "lng": number, "zoom": 8 } },
               { "type": "HIGHLIGHT_FLOAT", "payload": { "wmo_id": number } }
@@ -112,8 +137,8 @@ const handler = async (req: Request) => {
           }
 
           EXAMPLES:
-          - Query: "What's the warmest float?" → Use find_warmest_or_coldest_float tool, then return reply with float details + MAP_PAN_ZOOM and HIGHLIGHT_FLOAT actions
-          - Query: "Tell me about floats" → Use get_example_float_info tool, provide educational answer with example + MAP_PAN_ZOOM and HIGHLIGHT_FLOAT actions
+          - Query: "What's the warmest float?" → Use find_warmest_or_coldest_float tool, then return reply with actual temperature and coordinates + MAP_PAN_ZOOM and HIGHLIGHT_FLOAT actions
+          - Query: "Tell me about floats" → Use get_example_float_info tool, provide educational answer with real example data + MAP_PAN_ZOOM and HIGHLIGHT_FLOAT actions
 
           User's Question: "${query}"
         `
