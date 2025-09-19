@@ -121,24 +121,27 @@ const handler = async (req: Request) => {
           - For general answers with example floats, include the same actions to show the example float
           - If no float is involved, use empty actions array: []
 
-          RESPONSE RULES:
-          - ALWAYS use actual numeric values from the tool results, NEVER use "..." or placeholders
-          - Include specific details like temperature (°C), coordinates, regions, and WMO IDs
-          - Make responses conversational and informative
-          - When mentioning coordinates, format them properly (e.g., "12.5°N, 45.2°E")
+          CRITICAL RESPONSE RULES:
+          - You MUST ONLY use the exact data returned by the tools - NEVER make up or invent data
+          - Use the exact WMO ID, coordinates, temperature, and other values from the tool results
+          - If a tool returns specific data, use that exact data in your response
+          - NEVER use placeholder values like "28.2°C" or fake coordinates
+          - The map will only highlight floats that actually exist in the database
 
           REQUIRED JSON Response format:
           {
-            "reply": "Your conversational answer including actual float details with real values",
+            "reply": "Your conversational answer using ONLY the exact data from tool results",
             "actions": [
-              { "type": "MAP_PAN_ZOOM", "payload": { "lat": number, "lng": number, "zoom": 8 } },
-              { "type": "HIGHLIGHT_FLOAT", "payload": { "wmo_id": number } }
+              { "type": "MAP_PAN_ZOOM", "payload": { "lat": [exact_latitude_from_tool], "lng": [exact_longitude_from_tool], "zoom": 8 } },
+              { "type": "HIGHLIGHT_FLOAT", "payload": { "wmo_id": [exact_wmo_id_from_tool] } }
             ]
           }
 
-          EXAMPLES:
-          - Query: "What's the warmest float?" → Use find_warmest_or_coldest_float tool, then return reply with actual temperature and coordinates + MAP_PAN_ZOOM and HIGHLIGHT_FLOAT actions
-          - Query: "Tell me about floats" → Use get_example_float_info tool, provide educational answer with real example data + MAP_PAN_ZOOM and HIGHLIGHT_FLOAT actions
+          EXAMPLES WITH EXACT DATA USAGE:
+          - Query: "What's the warmest float?" → Use find_warmest_or_coldest_float tool, then reply: "The warmest float is WMO ID {exact_wmo_id} with a temperature of {exact_temperature}°C, located at {exact_latitude}, {exact_longitude} in the {exact_region}."
+          - Query: "Tell me about floats" → Use get_example_float_info tool, provide educational answer mentioning: "For example, float WMO ID {exact_wmo_id} is currently recording {exact_temperature}°C at coordinates {exact_latitude}, {exact_longitude}."
+
+          Remember: The user will see the map pan to the exact coordinates you provide, so they MUST match a real float in the database.
 
           User's Question: "${query}"
         `
@@ -163,13 +166,18 @@ const handler = async (req: Request) => {
 
         if (modelResponsePart.functionCall) {
             const functionCall = modelResponsePart.functionCall;
+            console.log('=== FUNCTION CALL ===', JSON.stringify(functionCall, null, 2));
             let toolResult;
 
             // Route to the correct tool logic
             if (functionCall.name === 'find_warmest_or_coldest_float') {
+                console.log('Finding warmest/coldest float with condition:', functionCall.args.condition);
                 toolResult = await find_warmest_or_coldest_float(supabaseClient, functionCall.args);
+                console.log('=== TOOL RESULT (warmest/coldest) ===', JSON.stringify(toolResult, null, 2));
             } else if (functionCall.name === 'get_example_float_info') {
+                console.log('Getting example float info');
                 toolResult = await get_example_float_info(supabaseClient);
+                console.log('=== TOOL RESULT (example) ===', JSON.stringify(toolResult, null, 2));
             } else {
                 throw new Error(`Unknown function call: ${functionCall.name}`);
             }
