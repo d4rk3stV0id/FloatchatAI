@@ -53,41 +53,59 @@ const tools = [
 
 // --- Tool Logic ---
 async function find_warmest_or_coldest_float(supabaseClient, { condition, visible_wmo_ids = [] }) {
-  // Base query: surface measurements (pressure < 20) with float details
-  let query = supabaseClient
-    .from("measurements")
-    .select(`
-      temperature,
-      pressure,
-      floats!inner(wmo_id, latitude, longitude, region, last_seen, id)
-    `)
-    .lt('pressure', 20)
-    .not('temperature', 'is', null)
-    .not('floats.latitude', 'is', null)
-    .not('floats.longitude', 'is', null);
-
-  // Restrict to currently visible floats if provided
+  // Robust two-step approach to avoid relying on implicit joins
+  // 1) (Optional) Map visible WMO IDs -> float IDs
+  let visibleFloatIds: number[] | null = null;
   if (Array.isArray(visible_wmo_ids) && visible_wmo_ids.length > 0) {
-    query = query.in('floats.wmo_id', visible_wmo_ids);
+    const { data: vFloats, error: vErr } = await supabaseClient
+      .from('floats')
+      .select('id, wmo_id')
+      .in('wmo_id', visible_wmo_ids as number[]);
+    if (vErr) throw new Error(`Supabase error: ${vErr.message}`);
+    visibleFloatIds = (vFloats || []).map((f: any) => f.id);
+    if (visibleFloatIds.length === 0) return null;
   }
 
-  const { data, error } = await query
+  // 2) Find the surface measurement with highest/lowest temperature
+  let measQuery = supabaseClient
+    .from('measurements')
+    .select('id, float_id, temperature, pressure')
+    .lt('pressure', 20)
+    .not('temperature', 'is', null);
+
+  if (visibleFloatIds) {
+    measQuery = measQuery.in('float_id', visibleFloatIds);
+  }
+
+  const { data: meas, error: measErr } = await measQuery
     .order('temperature', { ascending: condition === 'coldest' })
     .limit(1)
     .maybeSingle();
 
-  if (error) throw new Error(`Supabase error: ${error.message}`);
-  if (!data) return null;
+  if (measErr) throw new Error(`Supabase error: ${measErr.message}`);
+  if (!meas) return null;
+
+  // 3) Fetch the corresponding float row to get accurate coordinates/metadata
+  const { data: f, error: fErr } = await supabaseClient
+    .from('floats')
+    .select('id, wmo_id, latitude, longitude, region, last_seen')
+    .eq('id', meas.float_id)
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null)
+    .maybeSingle();
+
+  if (fErr) throw new Error(`Supabase error: ${fErr.message}`);
+  if (!f) return null;
   
   return {
-    id: data.floats.id,
-    wmo_id: data.floats.wmo_id,
-    temperature: data.temperature,
-    pressure: data.pressure,
-    latitude: data.floats.latitude,
-    longitude: data.floats.longitude,
-    region: data.floats.region,
-    last_seen: data.floats.last_seen
+    id: f.id,
+    wmo_id: f.wmo_id,
+    temperature: meas.temperature,
+    pressure: meas.pressure,
+    latitude: f.latitude,
+    longitude: f.longitude,
+    region: f.region,
+    last_seen: f.last_seen
   };
 }
 
@@ -175,6 +193,51 @@ const handler = async (req: Request) => {
             Deno.env.get("SUPABASE_ANON_KEY") ?? "",
             { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
         );
+
+        // Deterministic routing for common intents to ensure exact data and actions
+        const norm = (query || '').toLowerCase();
+        const visibleList = Array.isArray(visible_wmo_ids) ? visible_wmo_ids : [];
+        function buildResponseFromFloat(f: any, intent: 'warmest' | 'coldest' | 'by_wmo_id' | 'example') {
+          if (!f) return { reply: "I couldn't find any float matching your request within the current view.", actions: [] };
+          const regionText = f?.region ? ` in the ${f.region}` : '';
+          let reply = '';
+          if (intent === 'warmest' || intent === 'coldest') {
+            reply = `The ${intent} float is WMO ID ${f.wmo_id} with a temperature of ${f.temperature}°C, located at ${f.latitude}, ${f.longitude}${regionText}.`;
+          } else if (intent === 'by_wmo_id') {
+            const tempText = (f?.temperature !== null && f?.temperature !== undefined) ? `, with a surface temperature of ${f.temperature}°C` : '';
+            reply = `Float WMO ID ${f.wmo_id} is located at ${f.latitude}, ${f.longitude}${regionText}${tempText}.`;
+          } else {
+            reply = `For example, float WMO ID ${f.wmo_id} is currently recording ${f.temperature}°C at coordinates ${f.latitude}, ${f.longitude}${regionText}.`;
+          }
+          const actions = (f?.latitude !== null && f?.longitude !== null)
+            ? [
+                { type: 'MAP_PAN_ZOOM', payload: { lat: f.latitude, lng: f.longitude, zoom: 8 } },
+                { type: 'HIGHLIGHT_FLOAT', payload: { wmo_id: f.wmo_id } }
+              ]
+            : [];
+          return { reply, actions };
+        }
+
+        if (/\b(warmest|hottest|highest\s+temp(?:erature)?)\b/.test(norm)) {
+          console.log('[Router] Direct warmest route');
+          const f = await find_warmest_or_coldest_float(supabaseClient, { condition: 'warmest', visible_wmo_ids: visibleList });
+          const res = buildResponseFromFloat(f, 'warmest');
+          return new Response(JSON.stringify(res), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 });
+        }
+        if (/\b(coldest|coolest|lowest\s+temp(?:erature)?)\b/.test(norm)) {
+          console.log('[Router] Direct coldest route');
+          const f = await find_warmest_or_coldest_float(supabaseClient, { condition: 'coldest', visible_wmo_ids: visibleList });
+          const res = buildResponseFromFloat(f, 'coldest');
+          return new Response(JSON.stringify(res), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 });
+        }
+        const wmoMatch = (query || '').match(/\b\d{5,9}\b/);
+        if (wmoMatch) {
+          const wmo_id = parseInt(wmoMatch[0], 10);
+          console.log('[Router] Direct by WMO route', wmo_id);
+          const f = await get_float_by_wmo_id(supabaseClient, { wmo_id, visible_wmo_ids: visibleList });
+          const res = buildResponseFromFloat(f, 'by_wmo_id');
+          return new Response(JSON.stringify(res), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 });
+        }
 
         // UPDATED PROMPT: More conversational and allows for general questions
         const contents = [{
