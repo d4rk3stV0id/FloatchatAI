@@ -62,7 +62,9 @@ async function find_warmest_or_coldest_float(supabaseClient, { condition, visibl
       floats!inner(wmo_id, latitude, longitude, region, last_seen, id)
     `)
     .lt('pressure', 20)
-    .not('temperature', 'is', null);
+    .not('temperature', 'is', null)
+    .not('floats.latitude', 'is', null)
+    .not('floats.longitude', 'is', null);
 
   // Restrict to currently visible floats if provided
   if (Array.isArray(visible_wmo_ids) && visible_wmo_ids.length > 0) {
@@ -238,6 +240,9 @@ const handler = async (req: Request) => {
 
         let geminiResult = await geminiResponse.json();
         let modelResponsePart = geminiResult.candidates[0].content.parts[0];
+        let lastFunctionName = null;
+        let lastToolResult = null;
+        let lastFunctionArgs: any = null;
 
         if (modelResponsePart.functionCall) {
             const functionCall = modelResponsePart.functionCall;
@@ -251,11 +256,20 @@ const handler = async (req: Request) => {
                 console.log('=== TOOL RESULT (warmest/coldest) ===', JSON.stringify(toolResult, null, 2));
             } else if (functionCall.name === 'get_example_float_info') {
                 console.log('Getting example float info');
-                toolResult = await get_example_float_info(supabaseClient);
+                toolResult = await get_example_float_info(supabaseClient, functionCall.args);
                 console.log('=== TOOL RESULT (example) ===', JSON.stringify(toolResult, null, 2));
+            } else if (functionCall.name === 'get_float_by_wmo_id') {
+                console.log('Getting float by WMO ID:', functionCall.args.wmo_id);
+                toolResult = await get_float_by_wmo_id(supabaseClient, functionCall.args);
+                console.log('=== TOOL RESULT (by_wmo_id) ===', JSON.stringify(toolResult, null, 2));
             } else {
                 throw new Error(`Unknown function call: ${functionCall.name}`);
             }
+
+            // Keep track of the last tool invocation so we can construct a precise response
+            lastFunctionName = functionCall.name;
+            lastFunctionArgs = functionCall.args;
+            lastToolResult = toolResult;
 
             contents.push(
                 { role: "model", parts: [modelResponsePart] },
@@ -277,7 +291,31 @@ const handler = async (req: Request) => {
             modelResponsePart = geminiResult.candidates[0].content.parts[0];
         }
 
-        const aiResponseJson = JSON.parse(modelResponsePart.text);
+        let aiResponseJson;
+        if (lastToolResult) {
+            const f = lastToolResult;
+            const regionText = f?.region ? ` in the ${f.region}` : '';
+            let reply = '';
+            if (lastFunctionName === 'find_warmest_or_coldest_float') {
+                const cond = (lastFunctionArgs?.condition === 'coldest') ? 'coldest' : 'warmest';
+                reply = `The ${cond} float is WMO ID ${f.wmo_id} with a temperature of ${f.temperature}°C, located at ${f.latitude}, ${f.longitude}${regionText}.`;
+            } else if (lastFunctionName === 'get_example_float_info') {
+                reply = `For example, float WMO ID ${f.wmo_id} is currently recording ${f.temperature}°C at coordinates ${f.latitude}, ${f.longitude}${regionText}.`;
+            } else if (lastFunctionName === 'get_float_by_wmo_id') {
+                const tempText = (f?.temperature !== null && f?.temperature !== undefined) ? `, with a surface temperature of ${f.temperature}°C` : '';
+                reply = `Float WMO ID ${f.wmo_id} is located at ${f.latitude}, ${f.longitude}${regionText}${tempText}.`;
+            } else {
+                // Fallback to model response if we don't recognize the tool
+                reply = JSON.parse(modelResponsePart.text).reply ?? 'Here are the details.';
+            }
+            const actions = (f?.latitude !== null && f?.longitude !== null) ? [
+                { type: 'MAP_PAN_ZOOM', payload: { lat: f.latitude, lng: f.longitude, zoom: 8 } },
+                { type: 'HIGHLIGHT_FLOAT', payload: { wmo_id: f.wmo_id } }
+            ] : [];
+            aiResponseJson = { reply, actions };
+        } else {
+            aiResponseJson = JSON.parse(modelResponsePart.text);
+        }
         return new Response(JSON.stringify(aiResponseJson), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: 200,
