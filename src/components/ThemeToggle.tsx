@@ -1,41 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Switch } from '@/components/ui/switch';
-import { Sun, Moon } from 'lucide-react';
+import { Moon, Sun } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useTheme } from "@/components/providers/ThemeProvider" // --- Use the new provider hook ---
 
-const ThemeToggle: React.FC = () => {
-  const [isDark, setIsDark] = useState(() => {
-    // Check for saved theme in local storage or default to dark
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme ? savedTheme === 'dark' : true;
-  });
+export function ThemeToggle() {
+  const { setTheme, theme } = useTheme()
 
-  useEffect(() => {
-    // Apply the theme on initial load and when it changes
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDark]);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
-
-  return (
-    <div className="flex items-center gap-3">
-      <Sun className="h-5 w-5 text-muted-foreground" />
-      <Switch
-        checked={isDark}
-        onCheckedChange={toggleTheme}
-        aria-label="Toggle theme"
-        className="data-[state=checked]:bg-ocean-primary"
-      />
-      <Moon className="h-5 w-5 text-muted-foreground" />
-    </div>
-  );
-};
+  return (
+    <div className="flex items-center gap-2">
+        <Sun className="h-5 w-5 text-muted-foreground"/>
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            className="w-14 h-8 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center relative"
+        >
+            <div className={`w-6 h-6 rounded-full bg-background shadow-md transform transition-transform duration-300 ease-in-out ${theme === 'dark' ? 'translate-x-3' : '-translate-x-3'}`}/>
+        </Button>
+        <Moon className="h-5 w-5 text-muted-foreground"/>
+    </div>
+  )
+}
 
 export default ThemeToggle;
+

@@ -1,157 +1,189 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabaseClient';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// Import UI Components
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'; 
-import MapComponent from '@/components/MapComponent';
-import AnalyticsView from '@/components/Analytics'; // <-- IMPORT NEW VIEW
-import TrendsView from '@/components/Trends';       // <-- IMPORT NEW VIEW
-
-// Import Icons
-import { 
-  Waves, Send, BarChart3, MapPin, Settings, Menu, X, TrendingUp, User, LogOut
-} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import MapComponent from '@/components/MapComponent';
+import AIChatPanel from '@/components/AIChatPanel';
+import AnalyticsView from '@/components/AnalyticsView';
+import TrendsView from '@/components/TrendsView';
+import ProfessionalMetricsView from '@/components/ProfessionalMetricsView';
+import ReportGeneratorView from '@/components/ReportGeneratorView';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Settings, Menu, User, LogOut, BarChart3, TrendingUp, ChevronRight, ChevronLeft, MapPin, LayoutDashboard, FileText } from 'lucide-react';
+import { useFloats } from '@/lib/dataHooks';
+import { T } from '@/contexts/LanguageContexts'; // Corrected import path
 
-// Define types
-type ActiveView = 'map' | 'analytics' | 'trends';
-
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'ai';
-  content: string;
-  timestamp: Date;
+export interface AIAction {
+  type: 'MAP_PAN_ZOOM' | 'HIGHLIGHT_FLOAT' | 'SHOW_CHART';
+  payload: any;
 }
 
-interface Float {
-  id: number;
-  wmo_id: number;
-  latitude: number;
-  longitude: number;
-  last_seen: string;
-}
-
-const fetchFloats = async (): Promise<Float[]> => {
-  const { data, error } = await supabase.from('floats').select('*').limit(100);
-  if (error) throw new Error(error.message);
-  return data || [];
-};
+type ActiveView = 'map' | 'analytics' | 'trends' | 'metrics' | 'reports';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<ActiveView>('map'); // <-- STATE FOR ACTIVE VIEW
-  const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: '1', type: 'ai', content: 'Welcome to FloatChat! How can I help you explore ARGO ocean data?', timestamp: new Date() }
-  ]);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [activeView, setActiveView] = useState<ActiveView>('map');
+  const [actions, setActions] = useState<AIAction[]>([]);
+  const mapRef = useRef<any>(null);
 
-  const { data: floats, isLoading, error } = useQuery({
-    queryKey: ['floats'],
-    queryFn: fetchFloats,
-  });
-
-  const handleSendMessage = () => { /* ... Mock AI logic ... */ };
+  const { data: floats, isLoading, error } = useFloats();
 
   const handleLogout = async () => {
     await signOut();
     navigate('/');
   }
 
+  const executeActions = (newActions: AIAction[]) => {
+    setActions(newActions);
+    newActions.forEach(action => {
+      if (action.type === 'MAP_PAN_ZOOM' && mapRef.current) {
+        const { lat, lng, zoom } = action.payload;
+        if (typeof lat === 'number' && typeof lng === 'number') {
+            mapRef.current.flyTo([lat, lng], zoom || 7);
+        }
+      }
+    });
+  };
+
+  const NavItem = ({ icon: Icon, label, view }: { icon: React.ElementType, label: string, view: ActiveView }) => (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button 
+            variant="ghost" 
+            onClick={() => setActiveView(view)} 
+            className={`w-full justify-start gap-4 px-4 h-12 rounded-xl transition-all duration-300 group
+              ${activeView === view 
+                ? 'bg-gradient-to-r from-ocean-primary/20 to-ocean-accent/20 text-ocean-primary border border-ocean-primary/30 shadow-lg shadow-ocean-primary/20' 
+                : 'hover:bg-ocean-primary/10 hover:shadow-md'
+              } 
+              ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+            <Icon className={`h-5 w-5 transition-all duration-300 ${activeView === view ? 'text-ocean-primary' : 'text-muted-foreground group-hover:text-ocean-primary'}`} />
+            {isSidebarExpanded && (
+              <span className={`text-sm font-medium transition-all duration-300 ${activeView === view ? 'text-ocean-primary' : 'text-foreground'}`}>
+                <T>{label}</T>
+              </span>
+            )}
+          </Button>
+        </TooltipTrigger>
+        {!isSidebarExpanded && <TooltipContent side="right"><T>{label}</T></TooltipContent>}
+      </Tooltip>
+    </TooltipProvider>
+  );
+
   const renderActiveView = () => {
     switch (activeView) {
-      case 'analytics':
-        return <AnalyticsView />;
-      case 'trends':
-        return <TrendsView />;
+      case 'analytics': return <AnalyticsView />;
+      case 'trends': return <TrendsView />;
+      case 'metrics': return <ProfessionalMetricsView />;
+      case 'reports': return <ReportGeneratorView />;
       case 'map':
       default:
-        if (isLoading) return <div className="h-full flex items-center justify-center">Loading Map...</div>;
+        if (isLoading) return <div className="h-full flex items-center justify-center"><T>Loading Map...</T></div>;
         if (error) return <div className="h-full flex items-center justify-center text-destructive">Error: {error.message}</div>;
-        if (floats) return <MapComponent floats={floats} />;
+        if (floats) return <MapComponent floats={floats} actions={actions} mapRef={mapRef} />;
         return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Left Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:inset-0 flex flex-col
-      `}>
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <div className="flex items-center gap-2"><Waves className="h-5 w-5 text-ocean-primary" /> <span className="font-semibold">FloatChat</span></div>
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="lg:hidden"><X className="h-4 w-4" /></Button>
-        </div>
-
-        <ScrollArea className="flex-1 px-4 py-4">
-          <div className="space-y-2">
-            {/* Main Navigation */}
-            <Button variant={activeView === 'map' ? 'secondary' : 'ghost'} className="w-full justify-start gap-2" onClick={() => setActiveView('map')}><MapPin className="h-4 w-4" /> Ocean Map</Button>
-            <Button variant={activeView === 'analytics' ? 'secondary' : 'ghost'} className="w-full justify-start gap-2" onClick={() => setActiveView('analytics')}><BarChart3 className="h-4 w-4" /> Data Analytics</Button>
-            <Button variant={activeView === 'trends' ? 'secondary' : 'ghost'} className="w-full justify-start gap-2" onClick={() => setActiveView('trends')}><TrendingUp className="h-4 w-4" /> Trends</Button>
-          </div>
-        </ScrollArea>
+    <div className="h-screen bg-background flex overflow-hidden">
+       <div className={`
+        fixed inset-y-0 left-0 z-50 bg-card/95 backdrop-blur-xl border-r border-ocean-primary/20 flex flex-col
+        transition-all duration-500 ease-out lg:translate-x-0 shadow-2xl
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isSidebarExpanded ? 'w-72' : 'w-20'}`}>
         
-        {/* Settings button at the bottom */}
-        <div className="p-4 border-t border-border">
-          <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => navigate('/settings')}><Settings className="h-4 w-4" /> Settings</Button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <header className="border-b border-border p-4 bg-card/50 backdrop-blur-sm">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="lg:hidden"><Menu className="h-4 w-4" /></Button>
-            <h1 className="text-xl font-semibold">
-              {activeView === 'map' && 'Indian Ocean Dashboard'}
-              {activeView === 'analytics' && 'Analytics Dashboard'}
-              {activeView === 'trends' && 'Trends Dashboard'}
-            </h1>
-            <div className="ml-auto flex items-center gap-4">
-              <div className="text-sm text-muted-foreground">Status: <span className="text-green-500">Connected</span></div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="rounded-full"><User className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                <DropdownMenuContent align="end"><DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /> Logout</DropdownMenuItem></DropdownMenuContent>
-              </DropdownMenu>
+        {/* Logo Header with Enhanced Styling */}
+        <div className={`flex items-center gap-3 p-6 mb-6 border-b border-ocean-primary/10 ${isSidebarExpanded ? 'justify-start' : 'justify-center'}`}>
+            <div className="p-3 bg-ocean-gradient rounded-2xl shadow-lg ring-2 ring-ocean-primary/30 animate-ocean-pulse">
+              <img src="/floatlogo.png" alt="FloatChat Logo" className="h-7 w-7 object-contain"/>
             </div>
-          </div>
-        </header>
-
-        <div className="flex-1 flex overflow-hidden">
-          {/* Center Panel - Dynamic View */}
-          <div className="flex-1 overflow-y-auto">
-            {renderActiveView()}
-          </div>
-
-          {/* Right Sidebar - AI Chat */}
-          <div className="w-80 border-l border-border flex flex-col">
-            <div className="p-4 border-b border-border bg-card/50"><h2 className="font-semibold">AI Assistant</h2></div>
-            <ScrollArea className="flex-1 p-4" id="chat-messages">{/* ... your chat messages map here ... */}</ScrollArea>
-            <div className="p-4 border-t border-border">
-              <div className="flex gap-2">
-                <Input placeholder="Ask about ocean data..." value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} />
-                <Button variant="ocean" size="icon" onClick={handleSendMessage} disabled={!chatInput.trim()}><Send className="h-4 w-4" /></Button>
+            {isSidebarExpanded && (
+              <div className="animate-fade-in">
+                <span className="font-bold text-xl bg-gradient-to-r from-ocean-primary to-ocean-accent bg-clip-text text-transparent">
+                  FloatChat
+                </span>
+                <p className="text-xs text-muted-foreground mt-1">Ocean Analytics Platform</p>
               </div>
-            </div>
-          </div>
+            )}
+        </div>
+
+        {/* Enhanced Navigation */}
+        <div className={`flex-1 flex flex-col gap-3 ${isSidebarExpanded ? 'px-6' : 'px-3 items-center'}`}>
+          <NavItem icon={MapPin} label="Ocean Map" view="map" />
+          <NavItem icon={BarChart3} label="Analytics" view="analytics" />
+          <NavItem icon={TrendingUp} label="Trends" view="trends" />
+          <NavItem icon={LayoutDashboard} label="Professional Metrics" view="metrics" />
+          <NavItem icon={FileText} label="Report Generator" view="reports" />
+        </div>
+
+        {/* Enhanced Bottom Section */}
+        <div className={`flex flex-col gap-3 border-t border-ocean-primary/10 pt-6 ${isSidebarExpanded ? 'px-6' : 'px-3 items-center'}`}>
+          <TooltipProvider delayDuration={0}><Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" onClick={() => navigate('/settings')} 
+                className={`w-full justify-start gap-4 px-4 h-12 rounded-xl hover:bg-ocean-primary/10 transition-all duration-300 ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+                <Settings className="h-5 w-5 text-ocean-primary" />
+                {isSidebarExpanded && <span className="text-sm font-medium"><T>Settings</T></span>}
+              </Button>
+            </TooltipTrigger>
+            {!isSidebarExpanded && <TooltipContent side="right"><T>Settings</T></TooltipContent>}
+          </Tooltip></TooltipProvider>
+
+          <DropdownMenu>
+            <TooltipProvider delayDuration={0}><Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" 
+                    className={`w-full justify-start gap-4 px-4 h-12 rounded-xl hover:bg-ocean-primary/10 transition-all duration-300 ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+                    <User className="h-5 w-5 text-ocean-primary" />
+                    {isSidebarExpanded && <span className="text-sm font-medium"><T>Profile</T></span>}
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              {!isSidebarExpanded && <TooltipContent side="right"><T>Profile</T></TooltipContent>}
+            </Tooltip></TooltipProvider>
+            <DropdownMenuContent side="right" align="start" className="bg-card/95 backdrop-blur-xl border-ocean-primary/20">
+              <DropdownMenuItem onClick={handleLogout} className="hover:bg-ocean-primary/10">
+                <LogOut className="mr-2 h-4 w-4" /> <T>Logout</T>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Enhanced Collapse Button */}
+        <div className={`border-t border-ocean-primary/10 mt-4 p-3 ${isSidebarExpanded ? 'px-6' : 'px-3'}`}>
+           <Button variant="ghost" onClick={() => setIsSidebarExpanded(!isSidebarExpanded)} 
+             className="w-full justify-start gap-4 px-4 h-12 rounded-xl hover:bg-ocean-primary/10 transition-all duration-300">
+             {isSidebarExpanded ? <ChevronLeft className="h-5 w-5 text-ocean-primary" /> : <ChevronRight className="h-5 w-5 text-ocean-primary" />}
+             {isSidebarExpanded && <span className="text-sm font-medium"><T>Collapse</T></span>}
+           </Button>
         </div>
       </div>
 
-      {sidebarOpen && (<div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />)}
+      {/* Enhanced Main Content Area */}
+      <div className={`relative z-40 flex-1 flex flex-col transition-all duration-500 ease-out ${isSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'}`}>
+        <header className="lg:hidden p-4 bg-card/90 backdrop-blur-xl border-b border-ocean-primary/20">
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} 
+            className="hover:bg-ocean-primary/10 rounded-xl">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </header>
+        <div className="flex-1 flex overflow-hidden bg-gradient-to-br from-background to-ocean-surface/20">
+          <div className="flex-1 h-full min-w-0">{renderActiveView()}</div>
+          <div className="flex-shrink-0">
+            <AIChatPanel onNewResponse={executeActions} visibleFloats={floats || []} />
+          </div>
+        </div>
+      </div>
+      {sidebarOpen && (<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />)}
     </div>
   );
 };
 
 export default Dashboard;
-
