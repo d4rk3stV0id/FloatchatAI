@@ -1,15 +1,12 @@
-# FloatChat 🌊💬
+# FloatChat
 
 **Navigate the ocean's depths with a simple conversation. FloatChat is an AI-powered conversational interface for ARGO oceanographic data discovery and visualization.**
 
 *This project was developed as a proof-of-concept during a 24-hour hackathon.*
 
-![FloatChat Demo GIF](https://your-link-to-a-demo-gif-or-image.com/demo.gif)
-*(Recommendation: Add a GIF here showing the app in action!)*
-
 ---
 
-## 🚀 Mission
+## Mission
 
 Vast and complex ocean data from the global **ARGO float network** is largely inaccessible to non-experts. FloatChat bridges this gap by replacing steep learning curves and technical barriers with an intuitive, AI-driven chat experience. Our mission is to democratize access to ocean science, enabling anyone to discover, visualize, and understand ocean phenomena through natural language.
 
@@ -17,17 +14,17 @@ This proof-of-concept focuses on the **Indian Ocean region**.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-* 🧠 **AI as a Smart Router:** At its core, FloatChat uses Google's Gemini 1.5 Pro with **Function Calling**. The AI doesn't just generate text; it intelligently interprets user intent and orchestrates backend services, creating a seamless and powerful interaction between the chatbot and the map.
+* **AI as a Smart Router:** At its core, FloatChat uses Google's Gemini 1.5 Pro with **Function Calling**. The AI doesn't just generate text; it intelligently interprets user intent and orchestrates backend services, creating a seamless and powerful interaction between the chatbot and the map.
 
-* 🌊 **AI Dive Mode:** Go beyond static charts. FloatChat tells data stories by animating a float's predicted future path, dynamically highlighting ocean anomalies like heatwaves, and enriching the experience with contextually relevant external data.
+* **AI Dive Mode:** Go beyond static charts. FloatChat tells data stories by animating a float's predicted future path, dynamically highlighting ocean anomalies like heatwaves, and enriching the experience with contextually relevant external data.
 
-* 💬 **Conversational Data Discovery:** No SQL or Python skills needed. Users can simply ask questions like, *"Compare the salinity profiles of float X and float Y,"* and get instant, interactive visualizations.
+* **Conversational Data Discovery:** No SQL or Python skills needed. Users can simply ask questions like, *"Compare the salinity profiles of float X and float Y,"* and get instant, interactive visualizations.
 
 ---
 
-## 💡 How It Works: The "AI as a Smart Router" Architecture
+## How It Works: The "AI as a Smart Router" Architecture
 
 FloatChat's power comes from a modern AI architecture that is more robust and reliable than traditional Text-to-SQL systems.
 
@@ -55,7 +52,7 @@ FloatChat's power comes from a modern AI architecture that is more robust and re
 
 ---
 
-## 🏃‍♂️ Hackathon Proof-of-Concept
+## Hackathon Proof-of-Concept
 
 To deliver a polished and functional demo within a 24-hour timeframe, we adopted a "Simulate and Showcase" strategy:
 
@@ -64,7 +61,7 @@ To deliver a polished and functional demo within a 24-hour timeframe, we adopted
 
 ---
 
-## 🔮 Future Vision
+## Future Vision
 
 This hackathon project is the first step. Our long-term goal is to transition FloatChat into a production-grade application by:
 
@@ -73,7 +70,7 @@ This hackathon project is the first step. Our long-term goal is to transition Fl
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
 1.  **Clone the repository:**
     ```bash
@@ -101,7 +98,7 @@ This hackathon project is the first step. Our long-term goal is to transition Fl
 
 ---
 
-## 👥 Team
+## Team
 
 * [Dhanush P](https://github.com/dhanush4u2)
 * [Lakshay Sharma](https://github.com/BugZero42)
